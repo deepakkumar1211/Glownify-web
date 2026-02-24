@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useParams, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getSaloonDetailsById } from "../../../redux/slice/userSlice";
 import {
@@ -7,12 +7,14 @@ import {
   Heart,
   Star,
   MapPin,
-  ChevronRight,
+  ChevronDown,
   Pencil,
   Sparkles,
 } from "lucide-react";
 
-// ─── Fallback data for placeholder/demo salon IDs ───
+// ─── Fallback Data ─────────────────────────────────────────────────────────────
+// Used for placeholder/demo salon IDs (e.g. when navigating from home page cards).
+
 const FALLBACK_SALON = {
   _id: "demo",
   shopName: "Glamour Salon & Spa",
@@ -42,7 +44,9 @@ const FALLBACK_SALON = {
   specialistsData: [],
 };
 
-// Category image mapping
+// ─── Category Image Mapping ────────────────────────────────────────────────────
+// Maps category keywords to representative Unsplash images.
+
 const CATEGORY_IMAGES = {
   hair: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=200&h=200&fit=crop&crop=face",
   facial: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=200&h=200&fit=crop&crop=face",
@@ -53,6 +57,10 @@ const CATEGORY_IMAGES = {
   beard: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=200&h=200&fit=crop&crop=face",
 };
 
+/**
+ * Returns the best-matching image URL for a given service category name.
+ * Falls back to the hair image if no keyword match is found.
+ */
 const getCategoryImage = (name) => {
   const lower = name?.toLowerCase() || "";
   for (const [key, url] of Object.entries(CATEGORY_IMAGES)) {
@@ -61,41 +69,76 @@ const getCategoryImage = (name) => {
   return CATEGORY_IMAGES.hair;
 };
 
-// ─── Shared horizontal padding classes ───
+// ─── Shared Horizontal Padding ─────────────────────────────────────────────────
+// Keeps left/right padding consistent across all sections.
 const PX = "px-5 md:px-8 lg:px-12 xl:px-16";
 
+// ─── Main Component ────────────────────────────────────────────────────────────
+
+/**
+ * HomeSaloonsDetails
+ * ─────────────────────────────────────────────────────────────
+ * Detail page for a single salon. Shows:
+ *   - Sticky header bar (back, title, favourite)
+ *   - Hero image with rating overlay
+ *   - Address section
+ *   - Service category circles
+ *   - Home/Salon service mode toggle
+ *   - Navigation tabs (Services, Gallery, Map, Reviews, Specialists)
+ *   - Tab content rendered via <Outlet>
+ *
+ * Fetches salon data by `id` from the URL params.
+ * For placeholder IDs, uses FALLBACK_SALON without an API call.
+ */
 const HomeSaloonsDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { saloonDetails, loading, error } = useSelector(
+  const { saloonDetails, loading, serviceItems } = useSelector(
     (state) => state.user
   );
 
+  // ── Local State ───────────────────────────────────────────
   const [isFavorited, setIsFavorited] = useState(false);
-  const [serviceMode, setServiceMode] = useState("salon");
+  const [serviceMode, setServiceMode] = useState("home");    // "home" | "salon"
+  const [activeCategory, setActiveCategory] = useState(null);
 
-  const isPlaceholder = id?.startsWith("placeholder");
+  // Treat any dummy/demo ID as a placeholder — no real API call needed.
+  // "placeholder" prefix = home page cards; "d-w-" / "d-m-" = dummy salon IDs from SalonsPage.
+  const isPlaceholder =
+    id?.startsWith("placeholder") ||
+    id?.startsWith("d-w-") ||
+    id?.startsWith("d-m-");
 
+  // ── Fetch salon data ──────────────────────────────────────
   useEffect(() => {
     if (id && !isPlaceholder) {
       dispatch(getSaloonDetailsById(id));
     }
   }, [dispatch, id, isPlaceholder]);
 
-  const salon = isPlaceholder
-    ? FALLBACK_SALON
-    : saloonDetails || FALLBACK_SALON;
-
+  // Resolve which salon data to display
+  const salon = isPlaceholder ? FALLBACK_SALON : saloonDetails || FALLBACK_SALON;
   const categories = salon.serviceCategories || [];
-  const categoryNames = categories.map((cat) => cat.name);
 
-  if (loading && !isPlaceholder)
+  // Auto-select the first available category on load
+  useEffect(() => {
+    if (categories.length > 0 && !activeCategory) {
+      setActiveCategory(categories[0]._id);
+    }
+  }, [categories]);
+
+  // Derived values for the services heading
+  const itemCount = serviceItems?.length || 0;
+  const activeCatName = categories.find((c) => c._id === activeCategory)?.name || "Cat";
+
+  // ── Loading State ─────────────────────────────────────────
+  if (loading && !isPlaceholder) {
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-b from-pink-50 to-white">
         <div className="relative">
-          <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
+          <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin" />
           <Sparkles className="w-6 h-6 text-pink-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         </div>
         <p className="mt-4 text-gray-500 font-medium animate-pulse">
@@ -103,21 +146,29 @@ const HomeSaloonsDetails = () => {
         </p>
       </div>
     );
+  }
 
+  // ── Render ────────────────────────────────────────────────
   return (
     <div className="w-full min-h-screen bg-pink-50/70">
-      {/* ─── HEADER BAR ─── */}
+
+      {/* ── Sticky Header Bar ── */}
       <div className="sticky top-0 z-50 bg-pink-50/90 backdrop-blur-lg border-b border-pink-100/50">
         <div className={`flex items-center justify-between ${PX} py-3`}>
+          {/* Back button */}
           <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
           </button>
+
+          {/* Salon name */}
           <h1 className="text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 truncate max-w-[60%]">
             {salon.shopName}
           </h1>
+
+          {/* Favourite toggle */}
           <button
             onClick={() => setIsFavorited(!isFavorited)}
             className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors"
@@ -132,7 +183,7 @@ const HomeSaloonsDetails = () => {
         </div>
       </div>
 
-      {/* ─── HERO IMAGE ─── */}
+      {/* ── Hero Image ── */}
       <div className="relative w-full h-52 sm:h-60 md:h-72 lg:h-80 xl:h-[24rem] overflow-hidden">
         <img
           className="w-full h-full object-cover"
@@ -143,12 +194,15 @@ const HomeSaloonsDetails = () => {
           }
           alt={salon.shopName}
         />
-        {/* Dark gradient at bottom */}
+
+        {/* Gradient overlay to make text readable */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-        {/* Rating · Distance · View on Map — overlaid on image */}
+        {/* Rating · Distance · View on Map — overlaid at the bottom of the image */}
         <div className={`absolute bottom-0 left-0 right-0 ${PX} pb-4 md:pb-5`}>
           <div className="flex items-center gap-2 md:gap-3 text-white text-xs md:text-sm lg:text-base font-medium flex-wrap">
+
+            {/* Rating badge */}
             <div className="flex items-center gap-1.5">
               <span className="bg-amber-500 text-white text-[11px] md:text-xs px-2 py-0.5 md:px-2.5 md:py-1 rounded-full font-bold flex items-center gap-1">
                 <Star className="w-3 h-3 fill-white" />
@@ -161,6 +215,7 @@ const HomeSaloonsDetails = () => {
 
             <span className="text-white/40">|</span>
 
+            {/* Distance */}
             <div className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" />
               <span>{salon.distance || "2.3"} km away</span>
@@ -168,6 +223,7 @@ const HomeSaloonsDetails = () => {
 
             <span className="text-white/40">|</span>
 
+            {/* Map link */}
             <NavLink
               to="map"
               className="flex items-center gap-1 text-white/95 hover:text-white hover:underline"
@@ -179,8 +235,9 @@ const HomeSaloonsDetails = () => {
         </div>
       </div>
 
-      {/* ─── CONTENT PANEL ─── */}
+      {/* ── Content Panel (sits below the hero image) ── */}
       <div className="bg-pink-50/80 rounded-t-3xl -mt-5 relative z-10">
+
         {/* ── Address Row ── */}
         <div className={`${PX} pt-6 md:pt-7 pb-4 md:pb-5 border-b border-pink-100`}>
           <div className="flex items-start gap-3">
@@ -195,6 +252,7 @@ const HomeSaloonsDetails = () => {
                   {salon.location?.city ? `, ${salon.location.city}` : ""}
                 </span>
               </p>
+              {/* Home service note */}
               {salon.homeService && (
                 <p className="text-xs md:text-sm text-gray-400 mt-1">
                   For home service, professional will visit this address.
@@ -207,160 +265,90 @@ const HomeSaloonsDetails = () => {
           </div>
         </div>
 
-        {/* ── Toggle Buttons + Category Circles ── */}
-        <div className={`${PX} py-5 md:py-6 border-b border-pink-50`}>
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-5 md:gap-0 md:justify-between">
-            {/* Mode Toggle */}
-            <div className="flex gap-3 shrink-0">
+        {/* ── Our Services Section ── */}
+        <div className={`${PX} pt-5 pb-2 md:pt-6`}>
+          <h2 className="text-base md:text-lg font-bold text-gray-900 mb-4">
+            Our Services
+          </h2>
+
+          {/* Category Circles — horizontally scrollable */}
+          {categories.length > 0 && (
+            <div className="flex gap-5 md:gap-6 lg:gap-8 overflow-x-auto no-scrollbar pb-2">
+              {categories.map((cat) => {
+                const isActive = activeCategory === cat._id;
+                return (
+                  <button
+                    key={cat._id}
+                    onClick={() => setActiveCategory(cat._id)}
+                    className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none"
+                  >
+                    {/* Circle image with active ring */}
+                    <div
+                      className={`w-16 h-16 md:w-[4.5rem] md:h-[4.5rem] lg:w-20 lg:h-20 rounded-full overflow-hidden shadow-md transition-all duration-300 ${isActive
+                        ? "ring-[3px] ring-rose-400 ring-offset-2"
+                        : "ring-[2px] ring-gray-200"
+                        }`}
+                    >
+                      <img
+                        src={getCategoryImage(cat.name)}
+                        alt={cat.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <span
+                      className={`text-[11px] md:text-xs lg:text-sm font-semibold text-center transition-colors ${isActive ? "text-rose-500" : "text-gray-600"
+                        }`}
+                    >
+                      {cat.name}
+                    </span>
+                  </button>
+                );
+              })}
+
+              {/* "More" placeholder circle */}
+              <button className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none">
+                <div className="w-16 h-16 md:w-[4.5rem] md:h-[4.5rem] lg:w-20 lg:h-20 rounded-full bg-gray-100 flex items-center justify-center ring-[2px] ring-gray-200 shadow-md">
+                  <span className="text-xs font-bold text-gray-500">Mo</span>
+                </div>
+                <span className="text-[11px] md:text-xs lg:text-sm font-semibold text-gray-500 text-center">
+                  More
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* ── Service Mode Toggle (Home / Visit Salon) ── */}
+        <div className={`${PX} py-4`}>
+          <div className="inline-flex bg-white rounded-full p-1 shadow-sm border border-gray-100">
+
+            {/* "Salon at Home" option — only shown if salon offers home service */}
+            {salon.homeService && (
               <button
-                onClick={() => setServiceMode("salon")}
-                className={`px-7 md:px-8 lg:px-10 py-2.5 md:py-3 rounded-xl text-sm md:text-base font-bold transition-all duration-300 ${serviceMode === "salon"
-                  ? "bg-gradient-to-r from-rose-400 to-pink-400 text-white shadow-lg shadow-pink-200/50"
-                  : "bg-white text-gray-600 border-2 border-gray-200 hover:border-pink-300"
+                onClick={() => setServiceMode("home")}
+                className={`px-6 md:px-8 py-2.5 rounded-full text-sm md:text-base font-bold transition-all duration-300 ${serviceMode === "home"
+                  ? "bg-gradient-to-r from-rose-400 to-pink-400 text-white shadow-md"
+                  : "text-gray-500 hover:text-gray-700"
                   }`}
               >
-                Visit Salon
+                Salon at Home
               </button>
-              {salon.homeService && (
-                <button
-                  onClick={() => setServiceMode("home")}
-                  className={`px-7 md:px-8 lg:px-10 py-2.5 md:py-3 rounded-xl text-sm md:text-base font-bold transition-all duration-300 ${serviceMode === "home"
-                    ? "bg-gradient-to-r from-rose-400 to-pink-400 text-white shadow-lg shadow-pink-200/50"
-                    : "bg-white text-gray-600 border-2 border-gray-200 hover:border-pink-300"
-                    }`}
-                >
-                  Service at Home
-                </button>
-              )}
-            </div>
-
-            {/* Category Circles */}
-            {categories.length > 0 && (
-              <div className="flex items-center gap-3 md:gap-0 md:ml-auto">
-                <div className="flex gap-5 md:gap-6 lg:gap-7 overflow-x-auto no-scrollbar">
-                  {categories.map((cat) => (
-                    <div
-                      key={cat._id}
-                      className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group"
-                    >
-                      <div className="w-16 h-16 md:w-[4.5rem] md:h-[4.5rem] lg:w-20 lg:h-20 rounded-full overflow-hidden border-[2.5px] border-pink-200 group-hover:border-pink-400 shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300">
-                        <img
-                          src={getCategoryImage(cat.name)}
-                          alt={cat.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span className="text-[11px] md:text-xs lg:text-sm font-semibold text-gray-600 text-center">
-                        {cat.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <button className="w-9 h-9 md:w-10 md:h-10 bg-gray-100 rounded-full flex items-center justify-center shrink-0 hover:bg-gray-200 transition-colors ml-2">
-                  <ChevronRight className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
             )}
+
+            {/* "Visit Salon" option — always shown */}
+            <button
+              onClick={() => setServiceMode("salon")}
+              className={`px-6 md:px-8 py-2.5 rounded-full text-sm md:text-base font-bold transition-all duration-300 ${serviceMode === "salon"
+                ? "bg-gradient-to-r from-rose-400 to-pink-400 text-white shadow-md"
+                : "text-gray-500 hover:text-gray-700"
+                }`}
+            >
+              Visit Salon
+            </button>
           </div>
         </div>
 
-        {/* ── Our Services + Customer Reviews (side by side on md+) ── */}
-        <div className={`${PX} py-5 md:py-6`}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 items-start">
-            {/* Our Services Card */}
-            <div className="bg-white rounded-2xl p-5 md:p-6 border-l-4 border-l-pink-300 border border-pink-100/60 shadow-sm">
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-3">
-                Our Services
-              </h3>
-              {/* Sparkle banner */}
-              <div
-                className="text-white rounded-xl px-5 py-3 md:py-3.5 mb-3 relative overflow-hidden"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #f9a8d4 0%, #f472b6 30%, #e8a87c 70%, #d4a574 100%)",
-                }}
-              >
-                <div
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 1px, transparent 1px), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.2) 1px, transparent 1px), radial-gradient(circle at 60% 80%, rgba(255,255,255,0.25) 1px, transparent 1px)",
-                    backgroundSize: "30px 30px, 40px 40px, 25px 25px",
-                  }}
-                />
-                <p className="text-sm md:text-base lg:text-lg font-bold relative z-10">
-                  ✨ Services starting from ₹199
-                </p>
-              </div>
-              <p className="text-sm md:text-base text-gray-500">
-                {categoryNames.length > 0
-                  ? categoryNames.join(" · ")
-                  : "Hair · Facial · Makeup · Waxing"}
-              </p>
-            </div>
-
-            {/* Customer Reviews Card */}
-            <div className="bg-white rounded-2xl p-5 md:p-6 border border-gray-200 shadow-sm">
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-3">
-                Customer Reviews
-              </h3>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-lg md:text-xl">👑</span>
-                <span className="text-2xl md:text-3xl font-black text-rose-500">
-                  {salon.rating || "4.5"}
-                </span>
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-4 h-4 md:w-5 md:h-5 ${star <= Math.round(salon.rating || 4.5)
-                        ? "text-amber-400 fill-amber-400"
-                        : "text-gray-200 fill-gray-200"
-                        }`}
-                    />
-                  ))}
-                </div>
-              </div>
-              {/* Reviews */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 md:w-10 md:h-10 bg-pink-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-xs md:text-sm font-bold text-pink-600">
-                      P
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-sm md:text-base font-bold text-gray-800">
-                      Pooja S:
-                    </span>
-                    <span className="text-sm md:text-base text-gray-500 ml-1">
-                      "Great service and very clean!"
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 md:w-10 md:h-10 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-xs md:text-sm font-bold text-blue-600">
-                      A
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-sm md:text-base font-bold text-gray-800">
-                      Amit K:
-                    </span>
-                    <span className="text-sm md:text-base text-gray-500 ml-1">
-                      "Loved the facial, will book again!"
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── NAVIGATION TABS ── */}
+        {/* ── Navigation Tabs ── */}
         <div className="sticky top-[57px] z-40 bg-white/95 backdrop-blur-md border-y border-gray-100">
           <div className={`flex overflow-x-auto no-scrollbar ${PX} gap-1`}>
             {[
@@ -386,9 +374,28 @@ const HomeSaloonsDetails = () => {
           </div>
         </div>
 
-        {/* ── TAB CONTENT AREA ── */}
-        <div className={`${PX} py-6 md:py-8 min-h-[400px]`}>
-          <Outlet context={{ saloonDetails: salon, serviceMode }} />
+        {/* ── All Services Heading Row ── */}
+        <div className={`${PX} pt-5 pb-2 flex items-center justify-between`}>
+          <h2 className="text-base md:text-lg font-bold text-gray-900">
+            All Services
+          </h2>
+          {/* Shows active category name + item count */}
+          <button className="flex items-center gap-1 text-xs md:text-sm text-gray-500 font-medium">
+            {activeCatName} {itemCount} Items
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* ── Tab Content Area (child routes rendered here) ── */}
+        <div className={`${PX} pb-6 md:pb-8 min-h-[400px]`}>
+          <Outlet
+            context={{
+              saloonDetails: salon,
+              serviceMode,
+              activeCategory,
+              setActiveCategory,
+            }}
+          />
         </div>
       </div>
     </div>

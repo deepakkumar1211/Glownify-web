@@ -6,13 +6,8 @@ import {
   Clock,
   Plus,
   Minus,
-  Home,
-  Store,
-  Smartphone,
-  X,
   ShoppingCart,
   ChevronRight,
-  Sparkles,
 } from "lucide-react";
 import {
   addToCart,
@@ -57,18 +52,18 @@ const DEMO_SERVICES = {
     { _id: "demo-h4", name: "Hair Straightening", price: 2499, durationMins: 120, serviceMode: "salon", homeServiceCharge: 0 },
   ],
   "cat-2": [ // Facial
-    { _id: "demo-f1", name: "Classic Facial", price: 499, durationMins: 45, serviceMode: "both", homeServiceCharge: 60 },
-    { _id: "demo-f2", name: "Gold Facial", price: 999, durationMins: 60, serviceMode: "both", homeServiceCharge: 80 },
+    { _id: "demo-f1", name: "Facial Treatment", price: 950, durationMins: 45, serviceMode: "both", homeServiceCharge: 60 },
+    { _id: "demo-f2", name: "Clean Up", price: 600, durationMins: 30, serviceMode: "both", homeServiceCharge: 40, tag: "STEALDEAL" },
     { _id: "demo-f3", name: "Diamond Facial", price: 1499, durationMins: 75, serviceMode: "both", homeServiceCharge: 100 },
   ],
   "cat-3": [ // Wax
-    { _id: "demo-w1", name: "Full Arms Waxing", price: 199, durationMins: 30, serviceMode: "both", homeServiceCharge: 40 },
+    { _id: "demo-w1", name: "Full Arms Waxing", price: 400, durationMins: 20, serviceMode: "both", homeServiceCharge: 40 },
     { _id: "demo-w2", name: "Full Legs Waxing", price: 299, durationMins: 40, serviceMode: "both", homeServiceCharge: 50 },
     { _id: "demo-w3", name: "Full Body Waxing", price: 899, durationMins: 90, serviceMode: "both", homeServiceCharge: 100 },
   ],
   "cat-4": [ // Makeup
     { _id: "demo-m1", name: "Party Makeup", price: 1999, durationMins: 60, serviceMode: "both", homeServiceCharge: 150 },
-    { _id: "demo-m2", name: "Bridal Makeup", price: 4999, durationMins: 120, serviceMode: "both", homeServiceCharge: 200 },
+    { _id: "demo-m2", name: "Bridal Makeup", price: 4000, durationMins: 120, serviceMode: "both", homeServiceCharge: 200 },
     { _id: "demo-m3", name: "Engagement Makeup", price: 3499, durationMins: 90, serviceMode: "both", homeServiceCharge: 180 },
   ],
 };
@@ -82,17 +77,17 @@ const SalonServices = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const userId = useSelector((state) => state?.auth?.user?._id);
-  const { saloonDetails } = useOutletContext();
+  // serviceMode comes from the parent toggle ("home" | "salon") in HomeSaloonsDetails
+  const { saloonDetails, activeCategory: ctxCategory, setActiveCategory, serviceMode } = useOutletContext();
 
-  const isPlaceholder = id?.startsWith("placeholder");
+  // Match all dummy ID formats: home-page placeholders, and SalonsPage dummy IDs (d-w-*, d-m-*)
+  const isPlaceholder =
+    id?.startsWith("placeholder") ||
+    id?.startsWith("d-w-") ||
+    id?.startsWith("d-m-");
 
-  const [activeTab, setActiveTab] = useState(null);
   const [cartItems, setCartItems] = useState([]);
   const [demoItems, setDemoItems] = useState([]);
-
-  // Modal State
-  const [showModeModal, setShowModeModal] = useState(false);
-  const [pendingService, setPendingService] = useState(null);
 
   const categories = saloonDetails?.serviceCategories || [];
   const selectedSalonId = saloonDetails?._id;
@@ -105,35 +100,30 @@ const SalonServices = () => {
     if (userId) setCartItems(getCart(userId));
   }, [userId]);
 
-  // Auto-select first category
+  // Auto-select first category if none selected
   useEffect(() => {
-    if (categories.length > 0 && !activeTab) {
+    if (categories.length > 0 && !ctxCategory) {
       const firstCat = categories[0]._id;
-      setActiveTab(firstCat);
-      if (isPlaceholder) {
-        setDemoItems(DEMO_SERVICES[firstCat] || []);
-      } else {
-        dispatch(fetchServiceItemByCategory({ salonId: selectedSalonId, categoryId: firstCat }));
-      }
+      if (setActiveCategory) setActiveCategory(firstCat);
     }
-  }, [categories, activeTab, selectedSalonId, dispatch, isPlaceholder]);
+  }, [categories]);
 
-  const handleTabClick = (categoryId) => {
-    setActiveTab(categoryId);
+  // Load services whenever activeCategory changes
+  useEffect(() => {
+    if (!ctxCategory) return;
     if (isPlaceholder) {
-      setDemoItems(DEMO_SERVICES[categoryId] || []);
-    } else {
-      dispatch(fetchServiceItemByCategory({ salonId: selectedSalonId, categoryId }));
+      setDemoItems(DEMO_SERVICES[ctxCategory] || []);
+    } else if (selectedSalonId) {
+      dispatch(fetchServiceItemByCategory({ salonId: selectedSalonId, categoryId: ctxCategory }));
     }
-  };
+  }, [ctxCategory, selectedSalonId, dispatch, isPlaceholder]);
 
   const initiateAddToCart = (service) => {
-    if (service.serviceMode === "both") {
-      setPendingService(service);
-      setShowModeModal(true);
-    } else {
-      confirmAddToCart(service, service.serviceMode);
-    }
+    // Use the mode already selected by the toggle in the parent page.
+    // Map toggle value ("home" | "salon") to the cart's expected mode strings.
+    const modeMap = { home: "home", salon: "salon" };
+    const resolvedMode = modeMap[serviceMode] || "salon";
+    confirmAddToCart(service, resolvedMode);
   };
 
   const confirmAddToCart = (service, selectedMode) => {
@@ -168,77 +158,8 @@ const SalonServices = () => {
 
   return (
     <div className="w-full min-h-[400px] relative pb-24">
-      {/* Mode Selection Modal */}
-      {showModeModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowModeModal(false)} />
-          <div className="relative bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <button
-              onClick={() => setShowModeModal(false)}
-              className="absolute top-5 right-5 p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-400" />
-            </button>
 
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Smartphone className="w-8 h-8 text-rose-500" />
-              </div>
-              <h3 className="text-xl font-black text-gray-900">Choose Service Mode</h3>
-              <p className="text-gray-500 text-sm mt-2">Where would you like this service?</p>
-            </div>
-
-            <div className="grid gap-4">
-              <button
-                onClick={() => confirmAddToCart(pendingService, "salon")}
-                className="flex items-center justify-between p-5 border-2 border-gray-100 rounded-2xl hover:border-rose-300 hover:bg-pink-50/30 transition-all group"
-              >
-                <div className="flex items-center gap-4">
-                  <Store className="w-6 h-6 text-rose-500" />
-                  <span className="font-bold text-gray-800">At Salon</span>
-                </div>
-                <div className="w-6 h-6 rounded-full border-2 border-gray-200 group-hover:border-rose-400 flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 bg-rose-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
-
-              <button
-                onClick={() => confirmAddToCart(pendingService, "home")}
-                className="flex items-center justify-between p-5 border-2 border-gray-100 rounded-2xl hover:border-rose-300 hover:bg-pink-50/30 transition-all group"
-              >
-                <div className="flex items-center gap-4">
-                  <Home className="w-6 h-6 text-rose-500" />
-                  <span className="font-bold text-gray-800">At Home</span>
-                </div>
-                <div className="w-6 h-6 rounded-full border-2 border-gray-200 group-hover:border-rose-400 flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 bg-rose-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Category Pill Tabs */}
-      <div className="sticky top-0 z-20 bg-pink-50/95 backdrop-blur-sm px-4 md:px-6 lg:px-8 py-3">
-        <div className="flex overflow-x-auto no-scrollbar gap-2.5">
-          {categories.map((category) => (
-            <button
-              key={category._id}
-              onClick={() => handleTabClick(category._id)}
-              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border ${activeTab === category._id
-                  ? "bg-gradient-to-r from-rose-400 to-pink-400 text-white border-transparent shadow-md shadow-pink-200/50"
-                  : "bg-white text-gray-600 border-pink-200 hover:border-pink-300 hover:text-gray-800"
-                }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Service List */}
-      <div className="px-4 md:px-6 lg:px-8 py-4 space-y-3">
+      <div className="py-2 space-y-3">
         {isLoading ? (
           // Skeleton loading
           <div className="space-y-3">
@@ -260,11 +181,11 @@ const SalonServices = () => {
               return (
                 <div
                   key={service._id}
-                  className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-pink-100/60 shadow-sm hover:shadow-md transition-all duration-300"
+                  className="bg-white rounded-2xl p-4 border border-pink-100/60 shadow-sm hover:shadow-md transition-all duration-300"
                 >
                   <div className="flex gap-4 items-center">
                     {/* Service Thumbnail */}
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden shrink-0 shadow-sm">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden shrink-0 shadow-sm bg-gray-100">
                       <img
                         src={getServiceImage(service.name)}
                         alt={service.name}
@@ -274,22 +195,29 @@ const SalonServices = () => {
 
                     {/* Service Info */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-base md:text-lg font-bold text-gray-900 leading-tight">
-                        {service.name}
-                      </h4>
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <h4 className="text-sm md:text-base font-bold text-gray-900 leading-tight">
+                          {service.name}
+                        </h4>
+                        {service.tag && (
+                          <span className="text-[10px] font-bold text-rose-500 border border-rose-300 rounded px-1.5 py-0.5 leading-none">
+                            *{service.tag}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs md:text-sm text-gray-400 mt-0.5 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatDuration(service.durationMins)}
                       </p>
-                      <p className="text-lg md:text-xl font-black text-gray-900 mt-1">
-                        ₹ {service.price?.toLocaleString?.() || service.price}
+                      <p className="text-base md:text-lg font-black text-gray-900 mt-1">
+                        ₹{service.price?.toLocaleString?.() || service.price}
                       </p>
                     </div>
 
                     {/* Add / Qty Controls */}
                     <div className="shrink-0">
                       {qty > 0 ? (
-                        <div className="flex items-center gap-0 border border-pink-200 rounded-xl overflow-hidden">
+                        <div className="flex items-center gap-0 border border-pink-200 rounded-full overflow-hidden">
                           <button
                             onClick={() => handleRemoveFromCart(service._id)}
                             className="w-9 h-9 flex items-center justify-center bg-pink-50 hover:bg-pink-100 transition-colors text-rose-500"
@@ -309,9 +237,9 @@ const SalonServices = () => {
                       ) : (
                         <button
                           onClick={() => initiateAddToCart(service)}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold border-2 border-rose-300 text-rose-500 bg-white hover:bg-rose-50 transition-all active:scale-95"
+                          className="flex items-center gap-1 px-4 py-2 rounded-full text-sm font-bold border-2 border-rose-300 text-rose-500 bg-white hover:bg-rose-50 transition-all active:scale-95"
                         >
-                          <Plus className="w-4 h-4" /> Add
+                          + Add
                         </button>
                       )}
                     </div>
@@ -321,10 +249,10 @@ const SalonServices = () => {
             })}
 
             {/* No services message */}
-            {(!displayItems || displayItems.length === 0) && !isLoading && activeTab && (
-              <div className="text-center py-12">
-                <Sparkles className="w-10 h-10 text-pink-300 mx-auto mb-3" />
-                <p className="text-gray-500 font-medium">No services in this category yet</p>
+            {(!displayItems || displayItems.length === 0) && !isLoading && ctxCategory && (
+              <div className="text-center py-12 bg-white rounded-2xl border border-pink-100/60">
+                <span className="text-4xl text-gray-300 block mb-3">✂</span>
+                <p className="text-gray-400 font-medium text-sm">No services in this category</p>
               </div>
             )}
           </>
@@ -333,7 +261,7 @@ const SalonServices = () => {
 
       {/* Free Offer Progress Banner */}
       {cartServiceCount > 0 && (
-        <div className="px-4 md:px-6 lg:px-8 pb-4">
+        <div className="pb-4 pt-2">
           <div
             className="rounded-2xl px-5 py-3 relative overflow-hidden"
             style={{
@@ -342,16 +270,6 @@ const SalonServices = () => {
                 : "linear-gradient(135deg, #fce7f3 0%, #f9a8d4 30%, #e8a87c 70%, #f5d0a9 100%)",
             }}
           >
-            {!offerUnlocked && (
-              <div
-                className="absolute inset-0 opacity-30"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 15% 50%, rgba(255,255,255,0.4) 1px, transparent 1px), radial-gradient(circle at 75% 25%, rgba(255,255,255,0.3) 1px, transparent 1px), radial-gradient(circle at 50% 75%, rgba(255,255,255,0.35) 1px, transparent 1px)",
-                  backgroundSize: "25px 25px, 35px 35px, 20px 20px",
-                }}
-              />
-            )}
             <div className="relative z-10">
               <p className="text-sm font-bold text-gray-800">
                 {offerUnlocked
