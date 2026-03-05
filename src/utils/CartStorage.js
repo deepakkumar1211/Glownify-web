@@ -5,13 +5,13 @@ export const getCart = (userId) => {
   return data ? JSON.parse(data) : [];
 };
 
-export const removeFromCart = (userId, salonId, serviceId) => {
+export const removeFromCart = (userId, salonId, serviceId, bookedMode) => {
   let cart = getCart(userId);
   const salonIndex = cart.findIndex((item) => item.salonId === salonId);
 
   if (salonIndex > -1) {
     cart[salonIndex].services = cart[salonIndex].services.filter(
-      (s) => s._id !== serviceId
+      (s) => !(s._id === serviceId && (bookedMode ? s.bookedMode === bookedMode : true))
     );
     if (cart[salonIndex].services.length === 0) {
       cart.splice(salonIndex, 1);
@@ -39,7 +39,7 @@ export const addToCart = (userId, salon, service, selectedMode) => {
 
   if (salonIndex > -1) {
     const exists = cart[salonIndex].services.some(
-      (s) => s._id === service._id
+      (s) => s._id === service._id && s.bookedMode === selectedMode
     );
 
     if (!exists) {
@@ -52,6 +52,27 @@ export const addToCart = (userId, salon, service, selectedMode) => {
       // You can also store salon address/phone here if needed for checkout
       services: [serviceWithMode],
     });
+  }
+
+  localStorage.setItem(getCartKey(userId), JSON.stringify(cart));
+  return cart;
+};
+/**
+ * updateServiceMode
+ * Changes the bookedMode of an existing cart service without removing it.
+ * Called when the user switches the toggle after a service is already in cart.
+ */
+export const updateServiceMode = (userId, salonId, serviceId, newMode) => {
+  let cart = getCart(userId);
+  const salonIndex = cart.findIndex((item) => item.salonId === salonId);
+
+  if (salonIndex > -1) {
+    const serviceIndex = cart[salonIndex].services.findIndex(
+      (s) => s._id === serviceId
+    );
+    if (serviceIndex > -1) {
+      cart[salonIndex].services[serviceIndex].bookedMode = newMode;
+    }
   }
 
   localStorage.setItem(getCartKey(userId), JSON.stringify(cart));

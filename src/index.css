@@ -1,15 +1,188 @@
 @import "tailwindcss";
 
-@layer components {
-  .social-btn {
-    @apply w-full h-12 mb-3
-    flex items-center justify-center gap-3
-    border border-gray-300 rounded-lg
-    bg-white text-sm font-medium
-    hover:bg-gray-100 transition;
-  }
+/* ═══════════════════════════════════════════════════════════════
+   GLOWNIFY  —  Global Design Tokens
+   All colours, shadows, and radii live here.
+   To retheme the app, change values in this block only.
+═══════════════════════════════════════════════════════════════ */
+@theme {
+  /* ── Brand palette ── */
+  --color-primary: #156778;
+  /* Teal  — headers, active states         */
+  --color-primary-light: #e8f4f5;
+  /* Teal tint — icon backgrounds           */
+  --color-primary-dark: #0d5260;
+  /* Teal dark — hover                      */
+
+  --color-accent: #EA8491;
+  /* Pink — add buttons, highlights         */
+  --color-accent-light: #F9EFEE;
+  /* Pink tint — page background            */
+  --color-accent-border: #f3c6cb;
+  /* Pink border                            */
+
+  /* ── Neutrals ── */
+  --color-surface: #ffffff;
+  --color-bg: #f2f2f2;
+  /* Mobile page background                 */
+  --color-text: #111827;
+  /* Gray-900                               */
+  --color-text-sub: #9ca3af;
+  /* Gray-400 — subtitles, captions         */
+  --color-text-muted: #6b7280;
+  /* Gray-500                               */
+
+  /* ── Shadows ── */
+  --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.09);
+  --shadow-float: 0 2px 8px rgba(0, 0, 0, 0.25);
+
+  /* ── Radius ── */
+  --radius-card: 1rem;
+  /* 16px */
+  --radius-pill: 9999px;
 }
 
-@theme{
-  
+/* ═══════════════════════════════════════════════════════════════
+   Reusable component classes
+   Use these class names in JSX to keep inline styles minimal.
+═══════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Existing auth button ── */
+  .social-btn {
+    @apply w-full h-12 mb-3 flex items-center justify-center gap-3 border border-gray-300 rounded-lg bg-white text-sm font-medium hover:bg-gray-100 transition;
+  }
+
+  /* ── Mobile page wrapper ── */
+  .mobile-page {
+    @apply min-h-screen pb-28;
+    background-color: var(--color-bg);
+  }
+
+  /* ── Teal top header (Offers, Bookings, Profile, Salons, etc.) ── */
+  .mobile-header {
+    @apply flex items-center justify-center px-4 pt-12 pb-4;
+    background-color: var(--color-primary);
+  }
+
+  .mobile-header-title {
+    @apply text-white text-lg font-bold tracking-wide;
+  }
+
+  /* ── White card with shadow ── */
+  .mobile-card {
+    @apply bg-white rounded-2xl;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ── White card with pink top accent border ── */
+  .mobile-card-accent {
+    @apply bg-white rounded-2xl border border-slate-100 overflow-hidden;
+    border-top: 2px solid var(--color-accent);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* ── Section header row (title + "View all") ── */
+  .mobile-section-header {
+    @apply flex items-center justify-between px-4 pt-5 pb-3;
+  }
+
+  .mobile-section-title {
+    @apply text-[15px] font-extrabold text-gray-900 uppercase tracking-wide;
+  }
+
+  .mobile-section-link {
+    @apply text-[13px] font-semibold;
+    color: var(--color-primary);
+  }
+
+  /* ── Small section label (EARN WITH US, REWARDS, etc.) ── */
+  .mobile-group-label {
+    @apply text-[11px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2;
+  }
+
+  /* ── Primary teal button ── */
+  .btn-primary {
+    @apply w-full flex items-center justify-center py-3.5 rounded-2xl text-white font-bold text-[15px] transition-opacity active:opacity-80;
+    background-color: var(--color-primary);
+  }
+
+  /* ── Pink accent button ── */
+  .btn-accent {
+    @apply w-full flex items-center justify-center py-3.5 rounded-2xl text-white font-bold text-[15px] transition-opacity active:opacity-80;
+    background-color: var(--color-accent);
+  }
+
+  /* ── Outline danger button (Logout) ── */
+  .btn-danger-outline {
+    @apply w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-red-400 text-red-500 font-bold text-[15px] bg-white;
+  }
+
+  /* ── Pink "+ Add" outline pill (service cards) ── */
+  .btn-add {
+    @apply shrink-0 px-4 py-2 rounded-xl border text-xs font-bold transition-all active:scale-95;
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background-color: var(--color-surface);
+  }
+
+  .btn-add-active {
+    @apply shrink-0 px-4 py-2 rounded-xl border text-xs font-bold transition-all active:scale-95 text-white;
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  /* ── Pill toggle (Upcoming/Past, Salon at Home/Visit Salon) ── */
+  .toggle-pill-wrapper {
+    @apply flex rounded-full overflow-hidden border border-gray-200 bg-white;
+  }
+
+  .toggle-pill-btn {
+    @apply flex-1 py-2.5 text-[13px] font-bold capitalize transition-all;
+    color: var(--color-text-sub);
+    background-color: transparent;
+  }
+
+  .toggle-pill-btn-active {
+    @apply flex-1 py-2.5 text-[13px] font-bold capitalize;
+    border-radius: 9999px;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+  }
+
+  /* ── Circular icon background (profile menu rows) ── */
+  .icon-circle {
+    @apply w-10 h-10 rounded-full flex items-center justify-center shrink-0;
+    background-color: var(--color-primary-light);
+  }
+
+  /* ── Floating back button (injected globally by UserLayout) ── */
+  .mobile-back-btn {
+    @apply fixed top-4 left-4 z-[999] flex md:hidden items-center justify-center w-10 h-10 rounded-full;
+    background-color: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: var(--shadow-float);
+  }
+
+  /* ── Search bar (service search) ── */
+  .mobile-search-bar {
+    @apply flex items-center gap-2 bg-white border border-gray-200 rounded-full px-3 py-2;
+  }
+
+  .mobile-search-input {
+    @apply flex-1 text-xs outline-none bg-transparent text-gray-700 placeholder-gray-400;
+  }
+
+  /* ── Horizontal scroll row (no scrollbar) ── */
+  .h-scroll-row {
+    @apply flex gap-3 px-4 overflow-x-auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .h-scroll-row::-webkit-scrollbar {
+    display: none;
+  }
 }

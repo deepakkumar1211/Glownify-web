@@ -1,14 +1,59 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBookings } from "../../redux/slice/userSlice";
-import { Calendar, Clock, MapPin, Scissors, CreditCard, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Scissors,
+  ArrowLeft,
+  Heart,
+  Phone,
+  Star,
+  MessageCircle,
+  ChevronDown,
+  Gift,
+  XCircle,
+  Filter,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
+
+// Service image mapping
+const SERVICE_IMAGES = {
+  hair: "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=200&h=200&fit=crop&crop=face",
+  facial: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=200&h=200&fit=crop&crop=face",
+  wax: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200&h=200&fit=crop&crop=face",
+  makeup: "https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=200&h=200&fit=crop&crop=face",
+  nail: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=200&h=200&fit=crop&crop=face",
+  spa: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=200&h=200&fit=crop&crop=face",
+};
+
+const getServiceImage = (name) => {
+  const lower = name?.toLowerCase() || "";
+  for (const [key, url] of Object.entries(SERVICE_IMAGES)) {
+    if (lower.includes(key)) return url;
+  }
+  return SERVICE_IMAGES.hair;
+};
+
+const formatDuration = (mins) => {
+  if (!mins) return "";
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h} hr ${m} min` : `${h} hr`;
+};
 
 const MyBookingsPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { bookings, loading } = useSelector((state) => state.user);
-  
-  // State for the active filter tab
+  const [isFavorited, setIsFavorited] = useState(false);
+
   const [activeTab, setActiveTab] = useState("all");
+  const [expandedBooking, setExpandedBooking] = useState(null);
 
   useEffect(() => {
     dispatch(fetchUserBookings());
@@ -18,129 +63,313 @@ const MyBookingsPage = () => {
   const filteredBookings = useMemo(() => {
     if (!bookings) return [];
     if (activeTab === "all") return bookings;
-    return bookings.filter(b => b.status?.toLowerCase() === activeTab.toLowerCase());
+    return bookings.filter(
+      (b) => b.status?.toLowerCase() === activeTab.toLowerCase()
+    );
   }, [bookings, activeTab]);
 
+  // Expand first booking by default
+  useEffect(() => {
+    if (filteredBookings.length > 0 && expandedBooking === null) {
+      setExpandedBooking(filteredBookings[0]._id);
+    }
+  }, [filteredBookings, expandedBooking]);
+
   const tabs = [
-    { id: "all", label: "All Bookings" },
+    { id: "all", label: "All" },
     { id: "pending", label: "Upcoming" },
     { id: "completed", label: "Completed" },
     { id: "cancelled", label: "Cancelled" },
   ];
 
   const getStatusStyle = (status) => {
-    const base = "px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize";
     switch (status?.toLowerCase()) {
-      case "completed": return `${base} bg-emerald-100 text-emerald-700`;
-      case "pending": return `${base} bg-amber-100 text-amber-700`;
-      case "cancelled": return `${base} bg-rose-100 text-rose-700`;
-      default: return `${base} bg-slate-100 text-slate-700`;
+      case "completed":
+        return "bg-emerald-50 text-emerald-600 border-emerald-200";
+      case "pending":
+        return "bg-amber-50 text-amber-600 border-amber-200";
+      case "cancelled":
+        return "bg-rose-50 text-rose-500 border-rose-200";
+      default:
+        return "bg-gray-50 text-gray-500 border-gray-200";
     }
   };
 
-  if (loading) return (
-    <div className="flex flex-col justify-center items-center h-96 text-gray-400 space-y-4">
-      <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="font-medium">Fetching your appointments...</p>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-pink-50/60">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
+          <Sparkles className="w-6 h-6 text-pink-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        </div>
+        <p className="mt-4 text-gray-500 font-medium animate-pulse">
+          Fetching your appointments...
+        </p>
+      </div>
+    );
 
   return (
-    <div className="max-w-full mx-auto p-4 md:p-8 bg-gray-50 min-h-screen">
-      <header className="mb-8">
-        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">My Bookings</h2>
-        <p className="text-gray-500 mt-1">Track and manage your salon appointments</p>
-      </header>
-
-      {/* Modern Filter Tabs */}
-      <div className="flex items-center space-x-1 bg-gray-200/50 p-1 rounded-xl mb-8 w-fit">
-        {tabs.map((tab) => (
+    <div className="min-h-screen bg-pink-50/60">
+      {/* Header */}
+      <div className="sticky top-0 z-50 bg-pink-50/90 backdrop-blur-lg">
+        <div className="flex items-center justify-between px-5 md:px-10 py-3">
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-              activeTab === tab.id
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-200/50"
-            }`}
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors"
           >
-            {tab.label}
+            <ArrowLeft className="w-6 h-6 text-gray-800" />
           </button>
-        ))}
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+            Booking Details
+          </h1>
+          <button
+            onClick={() => setIsFavorited(!isFavorited)}
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-pink-100 transition-colors"
+          >
+            <Heart
+              className={`w-6 h-6 transition-colors ${isFavorited
+                ? "text-rose-500 fill-rose-500"
+                : "text-rose-400 fill-rose-400"
+                }`}
+            />
+          </button>
+        </div>
       </div>
 
-      {/* Bookings List */}
-      <div className="space-y-6">
-        {filteredBookings.length > 0 ? (
-          filteredBookings.map((booking) => (
-            <div
-              key={booking._id}
-              className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
+      {/* Filter Tabs */}
+      <div className="px-5 md:px-10 pt-2 pb-4">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setExpandedBooking(null);
+              }}
+              className={`px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border ${activeTab === tab.id
+                ? "bg-gradient-to-r from-rose-400 to-pink-400 text-white border-transparent shadow-md shadow-pink-200/50"
+                : "bg-white text-gray-600 border-pink-200 hover:border-pink-300"
+                }`}
             >
-              {/* Header */}
-              <div className="p-5 flex justify-between items-start border-b border-gray-50">
-                <div className="flex gap-4">
-                   {/* Placeholder for Shop Image/Avatar */}
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400">
-                    <Scissors size={20} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Bookings */}
+      <div className="px-4 md:px-10 pb-8 space-y-4 max-w-4xl mx-auto">
+        {filteredBookings.length > 0 ? (
+          filteredBookings.map((booking) => {
+            const isExpanded = expandedBooking === booking._id;
+
+            return (
+              <div
+                key={booking._id}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl border border-pink-100/60 shadow-sm overflow-hidden transition-all duration-300"
+              >
+                {/* Booking Header */}
+                <button
+                  onClick={() =>
+                    setExpandedBooking(isExpanded ? null : booking._id)
+                  }
+                  className="w-full flex items-center justify-between px-5 py-4 hover:bg-pink-50/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 bg-rose-50 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-4 h-4 text-rose-500" />
+                    </div>
+                    <span className="text-base font-bold text-gray-900">
+                      Booking Details
+                    </span>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold capitalize border ${getStatusStyle(
+                        booking.status
+                      )}`}
+                    >
+                      {booking.status}
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-800 leading-none mb-2">
-                      {booking.providerId?.shopName}
-                    </h3>
-                    <div className="flex items-center text-gray-500 text-xs">
-                      <MapPin size={12} className="mr-1" />
-                      {booking.providerId?.location?.address}
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isExpanded ? "" : "-rotate-90"
+                      }`}
+                  />
+                </button>
+
+                {isExpanded && (
+                  <div className="border-t border-pink-50">
+                    {/* Salon Info */}
+                    <div className="px-5 py-4 border-b border-pink-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center">
+                          <Scissors className="w-6 h-6 text-rose-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base font-bold text-gray-900">
+                            {booking.providerId?.shopName}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5 flex-wrap">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {booking.providerId?.location?.address || "Salon Location"}
+                              {booking.providerId?.location?.city
+                                ? `, ${booking.providerId.location.city}`
+                                : ""}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Phone className="w-3 h-3" /> +91 9876543210
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Date/Time & Distance */}
+                      <div className="flex items-center justify-between mt-3 bg-pink-50/60 rounded-xl px-4 py-2.5">
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Calendar className="w-4 h-4 text-rose-400" />
+                          <span className="font-medium">
+                            {new Date(booking.bookingDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                weekday: "short",
+                                day: "numeric",
+                                month: "short",
+                              }
+                            )}{" "}
+                            | {booking.timeSlot?.start || "10:00 AM"}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500 font-medium">
+                          2.3 km away
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Your Services */}
+                    <div className="px-5 py-4">
+                      <h4 className="text-base font-bold text-gray-900 mb-3">
+                        Your Services
+                      </h4>
+                      <div className="space-y-3 bg-pink-50/40 rounded-xl p-3">
+                        {booking.serviceItems.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3"
+                          >
+                            <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-sm">
+                              <img
+                                src={getServiceImage(item.service?.name)}
+                                alt={item.service?.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-gray-900">
+                                {item.service?.name}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                {formatDuration(item.service?.durationMins) || "45 min"}
+                              </p>
+                            </div>
+                            <p className="text-base font-bold text-gray-900 shrink-0">
+                              ₹ {item.service?.price}
+                            </p>
+                          </div>
+                        ))}
+
+                        {/* Free item (if total meets threshold) */}
+                        {booking.totalAmount >= 798 && (
+                          <div className="flex items-center gap-3">
+                            <div className="w-14 h-14 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+                              <Gift className="w-6 h-6 text-amber-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-bold text-gray-900">
+                                🎁 Nail Polish
+                              </p>
+                            </div>
+                            <p className="text-base font-bold text-green-500 shrink-0">
+                              FREE
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Cancel Booking */}
+                    {booking.status?.toLowerCase() === "pending" && (
+                      <div className="px-5 pb-4 space-y-2">
+                        <button className="w-full py-3 rounded-xl text-rose-500 font-bold text-sm bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors">
+                          Cancel Booking
+                        </button>
+                        <p className="text-xs text-gray-400 text-center">
+                          For any changes, please call the salon directly.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Assigned Beautician */}
+                    <div className="px-5 py-4 border-t border-pink-50">
+                      <div className="flex items-center gap-3">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-sm">
+                          <img
+                            src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=200&h=200&fit=crop&crop=face"
+                            alt="Beautician"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-400 font-medium">
+                            Assigned Beautician
+                          </p>
+                          <p className="text-base font-bold text-gray-900">
+                            Simran Jha
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                            <div className="flex items-center gap-0.5">
+                              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                              <Star className="w-3 h-3 text-gray-200 fill-gray-200" />
+                            </div>
+                            <span className="text-xs text-gray-400">
+                              $5 ratings
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            Beautician | 5+ Yrs Exp ✅
+                          </p>
+                        </div>
+                        <button className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center hover:bg-rose-100 transition-colors shrink-0">
+                          <MessageCircle className="w-5 h-5 text-rose-500" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Total */}
+                    <div className="px-5 py-3 bg-pink-50/50 border-t border-pink-100/60 flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-500">
+                        Total Amount
+                      </span>
+                      <span className="text-lg font-black text-rose-500">
+                        ₹{booking.totalAmount}
+                      </span>
                     </div>
                   </div>
-                </div>
-                <span className={getStatusStyle(booking.status)}>
-                  {booking.status}
-                </span>
+                )}
               </div>
-
-              {/* Appointment Stats */}
-              <div className="px-5 py-4 grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50/50">
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-widest">Date</p>
-                  <p className="text-sm font-semibold text-gray-700">
-                    {new Date(booking.bookingDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-widest">Time Slot</p>
-                  <p className="text-sm font-semibold text-gray-700">{booking.timeSlot?.start}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-widest">Payment</p>
-                  <p className="text-sm font-semibold text-gray-700 capitalize">{booking.paymentMethod}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 tracking-widest">Amount</p>
-                  <p className="text-sm font-bold text-blue-600">₹{booking.totalAmount}</p>
-                </div>
-              </div>
-
-              {/* Services Toggle or List */}
-              <div className="p-5">
-                <p className="text-xs font-bold text-gray-400 uppercase mb-3 tracking-widest">Services Included</p>
-                <div className="flex flex-wrap gap-2">
-                  {booking.serviceItems.map((item, idx) => (
-                    <span key={idx} className="bg-white border border-gray-200 px-3 py-1 rounded-full text-xs text-gray-600 shadow-sm">
-                      {item.service?.name} • ₹{item.service?.price}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))
+            );
+          })
         ) : (
-          <div className="bg-white rounded-2xl border-2 border-dashed border-gray-200 p-12 text-center">
-            <div className="bg-gray-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Filter className="text-gray-400" size={24} />
+          <div className="bg-white/90 rounded-2xl border border-pink-100 p-12 text-center">
+            <div className="bg-pink-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Filter className="text-pink-300" size={24} />
             </div>
-            <h3 className="text-lg font-bold text-gray-800">No {activeTab} bookings</h3>
-            <p className="text-gray-500 text-sm">Try changing your filter or book a new service.</p>
+            <h3 className="text-lg font-bold text-gray-800">
+              No {activeTab === "all" ? "" : activeTab} bookings
+            </h3>
+            <p className="text-gray-500 text-sm mt-1">
+              Try changing your filter or book a new service.
+            </p>
           </div>
         )}
       </div>

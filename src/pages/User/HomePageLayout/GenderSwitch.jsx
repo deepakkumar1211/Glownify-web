@@ -11,8 +11,8 @@ export const GenderSwitch = ({ gender, setGender }) => {
         {/* Animated Sliding Background */}
         <div
           className={`absolute top-1.5 bottom-1.5 left-1.5 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] bg-white rounded-[1.7rem] shadow-[0_8px_20px_-6px_rgba(0,0,0,0.1)] ${gender === 'women'
-              ? 'w-[calc(50%-6px)] translate-x-0'
-              : 'w-[calc(50%-6px)] translate-x-full'
+            ? 'w-[calc(50%-6px)] translate-x-0'
+            : 'w-[calc(50%-6px)] translate-x-full'
             }`}
         />
 
