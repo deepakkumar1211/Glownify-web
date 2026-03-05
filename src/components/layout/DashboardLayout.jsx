@@ -6,32 +6,15 @@ import Sidebar from "./Sidebar";
 import { SIDEBAR_CONFIG } from "./sidebarConfig";
 import { logoutUser } from "../../redux/slice/authSlice";
 
-/**
- * DashboardLayout
- * ─────────────────────────────────────────────────────────────
- * Shared layout wrapper for all role-based dashboards.
- * Renders a collapsible sidebar (mobile) + sticky header + main content area.
- *
- * Used by: Super Admin, Sales Executive, Salon Owner, Salesman,
- *          Team Lead, Independent Pro, Specialist
- */
 const DashboardLayout = () => {
-  // ── State ─────────────────────────────────────────────────
-  const [open, setOpen] = useState(false); // sidebar open/close on mobile
-
-  // ── Hooks ─────────────────────────────────────────────────
+  const [open, setOpen] = useState(false);
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
-  // Sidebar config for the logged-in user's role (avatar, menu items, etc.)
   const roleConfig = SIDEBAR_CONFIG[user?.role];
 
-  /**
-   * Derives a human-readable page title from the current URL path.
-   * e.g. "/super-admin/manage-salons" → "MANAGE SALONS"
-   */
   const getPageTitle = () => {
     const path = location.pathname.split("/").pop();
     return path === "dashboard"
@@ -39,17 +22,13 @@ const DashboardLayout = () => {
       : path.replace(/-/g, " ").toUpperCase();
   };
 
-  /** Dispatches logout and redirects to the home page. */
   const logout = () => {
     dispatch(logoutUser());
     navigate("/");
   };
 
-  // ── Render ────────────────────────────────────────────────
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-
-      {/* Mobile overlay — closes sidebar when tapped outside */}
       {open && (
         <div
           className="fixed inset-0 bg-black/50 lg:hidden z-40"
@@ -57,20 +36,13 @@ const DashboardLayout = () => {
         />
       )}
 
-      {/* Sidebar — hidden off-screen on mobile, always visible on lg+ */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 transform ${open ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 transition`}
-      >
+      <div className={`fixed inset-y-0 left-0 z-50 transform ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition`}>
         <Sidebar />
       </div>
 
-      {/* Main content area (header + page outlet) */}
-      <div className="flex-1 p-5 flex flex-col">
-
-        {/* ── Top Header ── */}
+      <div className="flex-1 lg:ml-64 flex flex-col">
+        {/* Header */}
         <header className="h-16 bg-white border-b px-6 flex justify-between items-center">
-          {/* Left: hamburger (mobile) + page title */}
           <div className="flex items-center gap-4">
             <button className="lg:hidden" onClick={() => setOpen(true)}>
               <Menu />
@@ -78,7 +50,6 @@ const DashboardLayout = () => {
             <h1 className="font-bold text-lg">{getPageTitle()}</h1>
           </div>
 
-          {/* Right: role avatar + logout button */}
           <div className="flex items-center gap-4">
             <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center font-bold text-indigo-600">
               {roleConfig?.avatar}
@@ -93,8 +64,7 @@ const DashboardLayout = () => {
           </div>
         </header>
 
-        {/* ── Page Content (rendered by child route) ── */}
-        <main className="flex-1 p-5 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>

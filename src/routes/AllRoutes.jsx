@@ -8,7 +8,7 @@ import ProtectedRoute from "./../components/ProtectedRoutes";
 import DashboardLayout from "./../components/layout/DashboardLayout";
 import AuthRedirect from "../components/AuthRedirect";
 
-// ─── Super Admin Pages ─────────────────────────────────────────────────────────
+// Super Admin Pages
 import SuperAdminDashboard from "./../pages/SuperAdmin/SuperAdminDashboard";
 import ManageSalonsPage from "../pages/SuperAdmin/ManageSalonsPage";
 import ManageUsersPage from "./../pages/SuperAdmin/ManageUsersPage";
@@ -19,12 +19,12 @@ import ManageSubscriptionPage from "./../pages/SuperAdmin/ManageSubscriptionPage
 import ManageResetPassword from "./../pages/SuperAdmin/ManageResetPassword";
 import SuperAdminProfilePage from "../pages/SuperAdmin/SuperAdminProfilePage";
 
-// ─── Sales Executive Pages ─────────────────────────────────────────────────────
+// Sales Executive Pages
 import SalesExecitiveDashboard from "./../pages/SalesExecutive/SalesExecitiveDashboard";
 import ManageSalesman from "./../pages/SalesExecutive/ManageSalesman";
 import SalesExecutiveProfilePage from "../pages/SalesExecutive/SalesExecutiveProfilePage";
 
-// ─── Salon Owner Pages ─────────────────────────────────────────────────────────
+// Salon Owner Pages
 import SalonOwnerDashboard from "../pages/SalonOwner/SalonOwnerDashboard";
 import ManageServicesPage from "../pages/SalonOwner/ManageServicesPage";
 import ManageSpecialistsPage from "../pages/SalonOwner/ManageSpecialistsPage";
@@ -36,25 +36,25 @@ import SalonOwnerProfilePage from "../pages/SalonOwner/SalonOwnerProfilePage";
 import ManageAddOnPage from "../pages/SalonOwner/ManageAddOnPage";
 import SubscriptionPage from "../pages/SalonOwner/SubscriptionPage";
 
-// ─── Salesman Pages ────────────────────────────────────────────────────────────
+// Salesman Pages
 import SalesmanDashboard from "../pages/Salesman/SalesmanDashboard";
 import MySaloonsPage from "../pages/Salesman/MySaloonsPage";
 import SalesmanProfilePage from "../pages/Salesman/SalesmanProfilePage";
 
-// ─── Team Lead Pages ───────────────────────────────────────────────────────────
+//TeamLead Pages
 import TeamLeadDashboard from "../pages/TeamLead/TeamLeadDashboard";
 import TeamLeadProfilePage from "../pages/TeamLead/TeamLeadProfilePage";
 
-// ─── Independent Pro Pages ────────────────────────────────────────────────────
+//IndependentPro Pages
 import IndependentProDashboard from "../pages/IndependentPro/IndependentProDashboard";
 import IndependentProProfilePage from "../pages/IndependentPro/IndependentProProfilePage";
 import ManageIndependentServicesPage from "../pages/IndependentPro/ManageIndependentServicesPage";
 
-// ─── Specialist Pages ─────────────────────────────────────────────────────────
+//Specialist Pages
 import SpecialistDashboard from "../pages/Specialist/SpecialistDashboard";
 import SpecialistProfilePage from "../pages/Specialist/SpecialistProfilePage";
 
-// ─── Public / User Pages ──────────────────────────────────────────────────────
+//Public Pages
 import UserLayout from "./../components/User/UserLayout";
 import HomePage from "./../pages/User/HomePage";
 import MyBookingsPage from "./../pages/User/MyBookingsPage";
@@ -69,9 +69,6 @@ import SalonSpecialists from "../pages/User/HomePageLayout/HomeSaloonDetails/Sal
 import LoginPage from "./../pages/Common/LoginPage";
 import RegisterPage from "../pages/Common/RegisterPage";
 import SalonsPage from "../pages/User/SalonsPage";
-import OffersPage from "../pages/User/OffersPage";
-import MobileBookingsPage from "../pages/User/MobileBookingsPage";
-import MobileProfilePage from "../pages/User/MobileProfilePage";
 import PartnerRegistrationPage from "../pages/Common/PartnerRegistrationPage";
 import SalonOwnerRegisterPage from "../pages/Common/SalonOwnerRegisterPage";
 import IndependentProfessionalRegistrarionPage from "../pages/Common/IndependentProfessionalRegistrarionPage";
@@ -80,80 +77,42 @@ import BlogPage from "../pages/Common/BlogPage";
 import AboutPage from "../pages/Common/AboutPage";
 import ContactPage from "../pages/Common/ContactPage";
 import CartPage from "../pages/User/CartPage";
-import BookingSuccessPage from "../pages/User/BookingSuccessPage";
+// import CareersPage from "../pages/Common/CareersPage";
 import BookSubscriptionPage from "../pages/BookSubscriptionPage";
 import PaymentSubscriptionPage from "../pages/PaymentSubscriptionPage";
-// import CareersPage from "../pages/Common/CareersPage"; // TODO: enable when page is ready
 
-// ─── Route Config ──────────────────────────────────────────────────────────────
-
-/**
- * AllRoutes
- * ─────────────────────────────────────────────────────────────
- * Central routing configuration for the Glownify application.
- *
- * Route groups:
- *  1. Public Customer Routes   — accessible without login
- *  2. Protected Customer Routes — requires "customer" role
- *  3. Super Admin              — /super-admin (ProtectedRoute disabled during dev)
- *  4. Sales Executive          — /sales-executive
- *  5. Salon Owner              — /salon-owner (ProtectedRoute active)
- *  6. Salesman                 — /salesman
- *  7. Team Lead                — /team-lead (ProtectedRoute active)
- *  8. Independent Pro          — /independent-pro (ProtectedRoute active)
- *  9. Specialist               — /specialist (ProtectedRoute active)
- *
- * NOTE: Some ProtectedRoutes are currently commented out for development
- * convenience. Re-enable before deploying to production.
- */
 const AllRoutes = () => {
   return (
     <Provider store={store}>
       <Toaster position="top-right" />
       <BrowserRouter>
-        {/* Handles auto-redirect based on auth state (e.g. redirect logged-in users away from /login) */}
         <AuthRedirect />
-
         <Routes>
-
-          {/* ── 1. Public Customer Routes ── */}
+          {/* PUBLIC CUSTOMER ROUTES */}
           <Route element={<UserLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/salons" element={<SalonsPage />} />
-            <Route path="/offers" element={<OffersPage />} />
-            <Route path="/bookings" element={<MobileBookingsPage />} />
-            <Route path="/profile" element={<MobileProfilePage />} />
-
-            {/* Partner registration flow */}
             <Route path="/partner-with-us" element={<PartnerRegistrationPage />} />
             <Route
               path="/partner-with-us/salon-owner-register"
               element={<SalonOwnerRegisterPage />}
             />
+            <Route path="/booksubscriptionpage" element={<BookSubscriptionPage />} />
+            <Route path="/paymentsubscriptionpage" element={<PaymentSubscriptionPage />} />
             <Route
               path="/partner-with-us/independent-professional-register"
               element={<IndependentProfessionalRegistrarionPage />}
             />
-
-            {/* Subscription pages */}
-            <Route path="/booksubscriptionpage" element={<BookSubscriptionPage />} />
-            <Route path="/paymentsubscriptionpage" element={<PaymentSubscriptionPage />} />
-
-            {/* Independent professional detail */}
             <Route
               path="/independentprofessionaldetailspage"
               element={<IndependentProfessionalDetailPage />}
             />
-
-            {/* Legacy salon detail page (kept for backward compatibility) */}
             <Route
               path="/salondetailPageforhome/:id"
               element={<SalonDetailPageForHome />}
             />
-
-            {/* Salon detail page with nested tabs */}
             <Route path="/salon/:id" element={<HomeSaloonsDetails />}>
               <Route index element={<Navigate to="services" replace />} />
               <Route path="services" element={<SalonServices />} />
@@ -162,81 +121,105 @@ const AllRoutes = () => {
               <Route path="reviews" element={<SalonReviews />} />
               <Route path="specialists" element={<SalonSpecialists />} />
             </Route>
-
-            {/* Static / info pages */}
             <Route path="/about-us" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/blogs" element={<BlogPage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/booking-success" element={<BookingSuccessPage />} />
             {/* <Route path="/careers" element={<CareersPage />} /> */}
           </Route>
 
-          {/* ── 2. Protected Customer Routes ── */}
+          {/* PROTECTED CUSTOMER ROUTES */}
           <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
             <Route element={<UserLayout />}>
               <Route path="/bookings" element={<MyBookingsPage />} />
               <Route path="/profile" element={<UserProfilePage />} />
             </Route>
           </Route>
+          {/* LOGIN ROUTE */}
 
-          {/* ── 3. Super Admin ── */}
-          {/* TODO: Re-enable ProtectedRoute before production deployment */}
-          {/* <Route element={<ProtectedRoute allowedRoles={["super_admin"]} />}> */}
-          <Route path="/super-admin" element={<DashboardLayout />}>
-            <Route index element={<SuperAdminDashboard />} />
-            <Route path="dashboard" element={<SuperAdminDashboard />} />
-            <Route path="manage-salons" element={<ManageSalonsPage />} />
-            <Route path="manage-categories" element={<ManageCategoriesPage />} />
-            <Route path="manage-users" element={<ManageUsersPage />} />
-            <Route path="manage-cities-and-states" element={<ManageCitiesAndStatesPage />} />
-            <Route path="manage-sales-executives" element={<ManageSalesExecutivePage />} />
-            <Route path="manage-subscriptions" element={<ManageSubscriptionPage />} />
-            <Route path="manage-reset-password" element={<ManageResetPassword />} />
-            <Route path="profile" element={<SuperAdminProfilePage />} />
+          {/* SUPER ADMIN */}
+          <Route element={<ProtectedRoute allowedRoles={["super_admin"]} />}>
+            <Route path="/super-admin" element={<DashboardLayout />}>
+              <Route index element={<SuperAdminDashboard />} />
+              <Route path="dashboard" element={<SuperAdminDashboard />} />
+              <Route path="manage-salons" element={<ManageSalonsPage />} />
+              <Route
+                path="manage-categories"
+                element={<ManageCategoriesPage />}
+              />
+              <Route path="manage-users" element={<ManageUsersPage />} />
+              <Route
+                path="manage-cities-and-states"
+                element={<ManageCitiesAndStatesPage />}
+              />
+              <Route
+                path="manage-sales-executives"
+                element={<ManageSalesExecutivePage />}
+              />
+              <Route
+                path="manage-subscriptions"
+                element={<ManageSubscriptionPage />}
+              />
+              <Route
+                path="manage-reset-password"
+                element={<ManageResetPassword />}
+              />
+              <Route path="profile" element={<SuperAdminProfilePage />} />
+            </Route>
           </Route>
-          {/* </Route> */}
 
-          {/* ── 4. Sales Executive ── */}
-          {/* TODO: Re-enable ProtectedRoute before production deployment */}
-          {/* <Route element={<ProtectedRoute allowedRoles={["sales_executive"]} />}> */}
-          <Route path="/sales-executive" element={<DashboardLayout />}>
-            <Route index element={<SalesExecitiveDashboard />} />
-            <Route path="dashboard" element={<SalesExecitiveDashboard />} />
-            <Route path="manage-salesman" element={<ManageSalesman />} />
-            <Route path="profile" element={<SalesExecutiveProfilePage />} />
+          {/* SALES EXECUTIVE */}
+          <Route
+            element={<ProtectedRoute allowedRoles={["sales_executive"]} />}
+          >
+            <Route path="/sales-executive" element={<DashboardLayout />}>
+              <Route index element={<SalesExecitiveDashboard />} />
+              <Route path="dashboard" element={<SalesExecitiveDashboard />} />
+              <Route path="manage-salesman" element={<ManageSalesman />} />
+              <Route path="profile" element={<SalesExecutiveProfilePage />} />
+            </Route>
           </Route>
-          {/* </Route> */}
 
-          {/* ── 5. Salon Owner ── */}
-          {/* <Route element={<ProtectedRoute allowedRoles={["salon_owner"]} />}> */}
-          <Route path="/salon-owner" element={<DashboardLayout />}>
-            <Route index element={<SalonOwnerDashboard />} />
-            <Route path="dashboard" element={<SalonOwnerDashboard />} />
-            <Route path="manage-services" element={<ManageServicesPage />} />
-            <Route path="manage-specialists" element={<ManageSpecialistsPage />} />
-            <Route path="manage-analytics" element={<ManageAnalyticsPage />} />
-            <Route path="manage-bookings" element={<ManageBookingsPage />} />
-            <Route path="ai-poster-creator" element={<AIPosterCreatorPage />} />
-            <Route path="ai-hairstyle-scanner" element={<AIHairstyleScannerPage />} />
-            <Route path="manage-add-ons" element={<ManageAddOnPage />} />
-            <Route path="profile" element={<SalonOwnerProfilePage />} />
+          {/* SALON OWNER */}
+          <Route element={<ProtectedRoute allowedRoles={["salon_owner"]} />}>
+            <Route path="/salon-owner" element={<DashboardLayout />}>
+              <Route index element={<SalonOwnerDashboard />} />
+              <Route path="dashboard" element={<SalonOwnerDashboard />} />
+              <Route path="manage-services" element={<ManageServicesPage />} />
+              <Route
+                path="manage-specialists"
+                element={<ManageSpecialistsPage />}
+              />
+              <Route
+                path="manage-analytics"
+                element={<ManageAnalyticsPage />}
+              />
+              <Route path="manage-bookings" element={<ManageBookingsPage />} />
+              <Route
+                path="ai-poster-creator"
+                element={<AIPosterCreatorPage />}
+              />
+              <Route
+                path="ai-hairstyle-scanner"
+                element={<AIHairstyleScannerPage />}
+              />
+              <Route path="manage-add-ons" element={<ManageAddOnPage />} />
+              <Route path="profile" element={<SalonOwnerProfilePage />} />
+            </Route>
+            <Route path="subscription" element={<SubscriptionPage />} />
           </Route>
-          <Route path="subscription" element={<SubscriptionPage />} />
-          {/* </Route> */}
 
-          {/* ── 6. Salesman ── */}
-          {/* TODO: Re-enable ProtectedRoute before production deployment */}
-          {/* <Route element={<ProtectedRoute allowedRoles={["salesman"]} />}> */}
-          <Route path="/salesman" element={<DashboardLayout />}>
-            <Route index element={<SalesmanDashboard />} />
-            <Route path="dashboard" element={<SalesmanDashboard />} />
-            <Route path="my-saloons" element={<MySaloonsPage />} />
-            <Route path="profile" element={<SalesmanProfilePage />} />
+          {/* SALESMAN */}
+          <Route element={<ProtectedRoute allowedRoles={["salesman"]} />}>
+            <Route path="/salesman" element={<DashboardLayout />}>
+              <Route index element={<SalesmanDashboard />} />
+              <Route path="dashboard" element={<SalesmanDashboard />} />
+              <Route path="my-saloons" element={<MySaloonsPage />} />
+              <Route path="profile" element={<SalesmanProfilePage />} />
+            </Route>
           </Route>
-          {/* </Route> */}
 
-          {/* ── 7. Team Lead ── */}
+          {/* TEAM LEAD */}
           <Route element={<ProtectedRoute allowedRoles={["team_lead"]} />}>
             <Route path="/team-lead" element={<DashboardLayout />}>
               <Route index element={<TeamLeadDashboard />} />
@@ -245,17 +228,22 @@ const AllRoutes = () => {
             </Route>
           </Route>
 
-          {/* ── 8. Independent Pro ── */}
-          <Route element={<ProtectedRoute allowedRoles={["independent_pro"]} />}>
+          {/* INDEPENDENT PRO */}
+          <Route
+            element={<ProtectedRoute allowedRoles={["independent_pro"]} />}
+          >
             <Route path="/independent-pro" element={<DashboardLayout />}>
               <Route index element={<IndependentProDashboard />} />
               <Route path="dashboard" element={<IndependentProDashboard />} />
-              <Route path="manage-services" element={<ManageIndependentServicesPage />} />
+              <Route
+                path="manage-services"
+                element={<ManageIndependentServicesPage />}
+              />
               <Route path="profile" element={<IndependentProProfilePage />} />
             </Route>
           </Route>
 
-          {/* ── 9. Specialist ── */}
+          {/* SPECIALIST */}
           <Route element={<ProtectedRoute allowedRoles={["specialist"]} />}>
             <Route path="/specialist" element={<DashboardLayout />}>
               <Route index element={<SpecialistDashboard />} />
@@ -263,7 +251,6 @@ const AllRoutes = () => {
               <Route path="profile" element={<SpecialistProfilePage />} />
             </Route>
           </Route>
-
         </Routes>
       </BrowserRouter>
     </Provider>
@@ -271,5 +258,3 @@ const AllRoutes = () => {
 };
 
 export default AllRoutes;
-
-

@@ -158,7 +158,7 @@ const SalonHomeServices = ({ category, lat, lng }) => {
                       <Clock size={12} />
                       <span className="text-[10px] font-bold uppercase">Quick Visit</span>
                     </div>
-                    <button onClick={() => gotoDetailsPage(item._id)} className="bg-rose-50 text-rose-500 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-rose-500 hover:text-white transition-colors">
+                    <button onClick={() => gotoDetailsPage(item._id)} className="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-colors">
                       Book Now
                     </button>
                   </div>

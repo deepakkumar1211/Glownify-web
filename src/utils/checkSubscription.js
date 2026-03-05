@@ -1,7 +1,6 @@
 import toast from "react-hot-toast";
 
 export const checkSubscription = async (navigate) => {
-  return;
   try {
     const now = new Date();
     const localData = localStorage.getItem("subscription");

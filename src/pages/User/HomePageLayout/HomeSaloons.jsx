@@ -85,13 +85,13 @@ const HomeSaloons = ({ category, lat, lng, fallbackSalons = [] }) => {
       <div className="flex items-end justify-between mb-8 px-2">
         <div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight capitalize">
-            {category} <span className="text-teal-600">Salons</span>
+            {category} <span className="text-indigo-600">Salons</span>
           </h2>
           <p className="text-slate-500 text-sm mt-1">Premium grooming services in your area</p>
         </div>
         <button
           onClick={() => navigate("/salons")}
-          className="group/btn flex items-center gap-2 text-teal-600 font-bold text-sm bg-teal-50 px-4 py-2 rounded-full hover:bg-teal-600 hover:text-white transition-all duration-300"
+          className="group/btn flex items-center gap-2 text-indigo-600 font-bold text-sm bg-indigo-50 px-4 py-2 rounded-full hover:bg-indigo-600 hover:text-white transition-all duration-300"
         >
           View All <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
         </button>

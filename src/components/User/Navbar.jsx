@@ -53,7 +53,7 @@ const Navbar = () => {
     }`;
 
   return (
-    <div className="hidden md:block">
+    <>
       <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-lg border-b border-rose-100/50 shadow-sm">
         <div className="w-full mx-auto px-4 md:px-8 lg:px-12 h-16 flex items-center justify-between">
 
@@ -223,7 +223,7 @@ const Navbar = () => {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 
