@@ -76,7 +76,6 @@ function UnisexSalonCard({ salon, onClick }) {
 
 /**
  * MobileUnisexSalons — mobile-only horizontal scroll section.
- * Desktop keeps UnisexSalon.jsx (Swiper carousel).
  */
 const MobileUnisexSalons = ({ lat, lng }) => {
     const dispatch = useDispatch();

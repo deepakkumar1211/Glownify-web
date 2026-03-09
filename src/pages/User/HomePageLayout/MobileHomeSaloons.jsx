@@ -50,11 +50,9 @@ function MobileSalonCard({ salon, onClick }) {
                     className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-2 py-1.5"
                     style={{ background: "linear-gradient(to top, rgba(0,0,0,0.70) 0%, transparent 100%)" }}
                 >
-                    {/* Distance */}
                     <span className="text-white text-[11px] font-semibold flex items-center gap-1">
                         📍 {distance}
                     </span>
-                    {/* Rating */}
                     <span className="text-white text-[11px] font-semibold flex items-center gap-1">
                         ⭐ {rating} ({reviews})
                     </span>
@@ -63,13 +61,10 @@ function MobileSalonCard({ salon, onClick }) {
 
             {/* Info section below image */}
             <div className="px-3 pt-2.5 pb-3">
-                {/* Shop name */}
                 <p className="font-bold text-[14px] text-gray-900 leading-tight truncate">{salon.shopName}</p>
-                {/* Subtitle */}
                 <p className="text-[11px] text-gray-400 mt-0.5 mb-2">
                     {salon.salonCategory || "No categories available"}
                 </p>
-                {/* Category chips */}
                 <div className="flex flex-wrap gap-1">
                     {tags.slice(0, 3).map((tag, i) => (
                         <span

@@ -4,21 +4,7 @@ import { Check, Store, MapPin, FileImage } from 'lucide-react';
 const SalonOwnerHeader = ({ green, icon1, green2, icon2 }) => {
     return (
         <div className="w-full bg-white">
-            {/* Banner Header — Purple gradient for Salon Owner */}
-            <header
-                className="px-5 py-7 sm:px-8 sm:py-10 text-white shadow-inner relative overflow-hidden"
-                style={{ background: "linear-gradient(135deg, #6C4CF1 0%, #9B6DFF 100%)" }}
-            >
-                {/* Subtle decorative element for a modern look */}
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-3xl"></div>
 
-                <div className="relative z-10">
-                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Earn with Us</h1>
-                    <p className="text-purple-100 font-medium mt-1 sm:mt-2 max-w-md leading-relaxed text-sm sm:text-base">
-                        Salon Registration — Register your salon and start growing your business.
-                    </p>
-                </div>
-            </header>
 
             {/* Progress Navigation - Stepper Style */}
             <nav className="px-2 sm:px-4 py-4 sm:py-6 relative">

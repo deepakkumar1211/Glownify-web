@@ -24,6 +24,9 @@ import SalesExecitiveDashboard from "./../pages/SalesExecutive/SalesExecitiveDas
 import ManageSalesman from "./../pages/SalesExecutive/ManageSalesman";
 import SalesExecutiveProfilePage from "../pages/SalesExecutive/SalesExecutiveProfilePage";
 
+// ─── Protected Layouts ───────────────────────────────────────────────────────
+import SalonOwnerLayout from "../components/layout/SalonOwnerLayout";
+
 // ─── Salon Owner Pages ─────────────────────────────────────────────────────────
 import SalonOwnerDashboard from "../pages/SalonOwner/SalonOwnerDashboard";
 import ManageServicesPage from "../pages/SalonOwner/ManageServicesPage";
