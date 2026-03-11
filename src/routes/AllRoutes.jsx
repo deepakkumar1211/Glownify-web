@@ -24,6 +24,9 @@ import SalesExecitiveDashboard from "./../pages/SalesExecutive/SalesExecitiveDas
 import ManageSalesman from "./../pages/SalesExecutive/ManageSalesman";
 import SalesExecutiveProfilePage from "../pages/SalesExecutive/SalesExecutiveProfilePage";
 
+// ─── Protected Layouts ───────────────────────────────────────────────────────
+import SalonOwnerLayout from "../components/layout/SalonOwnerLayout";
+
 // ─── Salon Owner Pages ─────────────────────────────────────────────────────────
 import SalonOwnerDashboard from "../pages/SalonOwner/SalonOwnerDashboard";
 import ManageServicesPage from "../pages/SalonOwner/ManageServicesPage";
@@ -35,7 +38,13 @@ import AIPosterCreatorPage from "../pages/SalonOwner/AIPosterCreatorPage";
 import SalonOwnerProfilePage from "../pages/SalonOwner/SalonOwnerProfilePage";
 import ManageAddOnPage from "../pages/SalonOwner/ManageAddOnPage";
 import SubscriptionPage from "../pages/SalonOwner/SubscriptionPage";
-
+import SalonBookingsPage from "../pages/SalonOwner/Mobile/SalonBookingsPage";
+import BookingDetailPage from "../pages/SalonOwner/Mobile/BookingDetailPage";
+import BillingDetailPage from "../pages/SalonOwner/Mobile/BillingDetailPage";
+import MobileManageCategoriesScreen from "../pages/SalonOwner/Mobile/MobileManageCategoriesScreen";
+import MobileComboPackagesScreen from "../pages/SalonOwner/Mobile/MobileComboPackagesScreen";
+import MobileSalonNotificationsScreen from "../pages/SalonOwner/Mobile/MobileSalonNotificationsScreen";
+import MobileMyViewScreen from "../pages/SalonOwner/Mobile/MobileMyViewScreen";
 // ─── Salesman Pages ────────────────────────────────────────────────────────────
 import SalesmanDashboard from "../pages/Salesman/SalesmanDashboard";
 import MySaloonsPage from "../pages/Salesman/MySaloonsPage";
@@ -221,6 +230,14 @@ const AllRoutes = () => {
             <Route path="ai-hairstyle-scanner" element={<AIHairstyleScannerPage />} />
             <Route path="manage-add-ons" element={<ManageAddOnPage />} />
             <Route path="profile" element={<SalonOwnerProfilePage />} />
+            {/* Mobile-only booking flow pages */}
+            <Route path="bookings" element={<SalonBookingsPage />} />
+            <Route path="booking-detail" element={<BookingDetailPage />} />
+            <Route path="create-bill" element={<BillingDetailPage />} />
+            <Route path="manage-categories-mobile" element={<MobileManageCategoriesScreen />} />
+            <Route path="combo-packages" element={<MobileComboPackagesScreen />} />
+            <Route path="notifications" element={<MobileSalonNotificationsScreen />} />
+            <Route path="my-view" element={<MobileMyViewScreen />} />
           </Route>
           <Route path="subscription" element={<SubscriptionPage />} />
           {/* </Route> */}

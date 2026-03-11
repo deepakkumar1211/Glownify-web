@@ -4,21 +4,7 @@ import { Check, User, Clock, ShieldCheck } from 'lucide-react';
 const IndependentHeader = ({ green, icon1, green2, icon2 }) => {
   return (
     <div className="w-full bg-white">
-      {/* Banner Header - Modernized with better spacing and subtle shadow */}
-      <header
-        className="px-5 py-7 sm:px-8 sm:py-10 text-white shadow-inner relative overflow-hidden"
-        style={{ background: "var(--pink-gradient, linear-gradient(135deg, #db2777 0%, #f472b6 100%))" }}
-      >
-        {/* Subtle decorative element for a modern look */}
-        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-3xl"></div>
 
-        <div className="relative z-10">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Earn with Us</h1>
-          <p className="text-pink-100 font-medium mt-1 sm:mt-2 max-w-md leading-relaxed text-sm sm:text-base">
-            Professional Registration — Join our community of experts and grow your career.
-          </p>
-        </div>
-      </header>
 
       {/* Progress Navigation - Stepper Style */}
       <nav className="px-2 sm:px-4 py-4 sm:py-6 relative">

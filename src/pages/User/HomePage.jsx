@@ -1,191 +1,91 @@
 import React, { useEffect, useState } from "react";
-import menImg from "../../assets/men-women/men.png";
-import womanImg from "../../assets/men-women/woman.png";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllFeaturedSaloons } from "../../redux/slice/userSlice";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
-import Hero from "./HomePageLayout/Hero";
-import { fetchAllCategories } from "../../redux/slice/userSlice";
-import Categories from "./HomePageLayout/Categories";
-import Services from "./HomePageLayout/Services";
-import ServicesBanner from "./HomePageLayout/ServicesBanner";
-import { GenderSwitch } from "./HomePageLayout/GenderSwitch";
-import TopRatedSaloons from "./HomePageLayout/TopRatedSaloons";
-import HomeSaloons from "./HomePageLayout/HomeSaloons";
-import { setSelectedCategory, setLocation } from "../../redux/slice/userSlice";
+import { fetchAllFeaturedSaloons, fetchAllCategories, setSelectedCategory, setLocation } from "../../redux/slice/userSlice";
 import toast from "react-hot-toast";
-import IndependentProfessionals from "./HomePageLayout/IndependentProfessionals";
-import UnisexSalon from "./HomePageLayout/UnisexSalon";
-import SalonHomeServices from "./HomePageLayout/SalonHomeServices";
-import { useNavigate } from "react-router-dom";
+import useMobile from "../../hooks/useMobile";
+import MobileHomePage from "./Mobile/MobileHomePage";
+import DesktopHomePage from "./Desktop/DesktopHomePage";
 
-// ── Mobile-only imports ──────────────────────────────────────────────────
-import MobileHero from "./HomePageLayout/MobileHero";
-import BookAtHomeBanner from "./HomePageLayout/BookAtHomeBanner";
-import ServiceCategories from "./HomePageLayout/ServiceCategories";
-import MobileHomeSaloons from "./HomePageLayout/MobileHomeSaloons";
-import MobileIndependentProfessionals from "./HomePageLayout/MobileIndependentProfessionals";
-import NearbyOffers from "./HomePageLayout/NearbyOffers";
-import MobileUnisexSalons from "./HomePageLayout/MobileUnisexSalons";
-
-
+/**
+ * HomePage — thin dispatcher
+ * ─────────────────────────────────────────────────────────────
+ * Handles ALL data fetching (Redux, geolocation) in one place,
+ * then renders either MobileHomePage or DesktopHomePage.
+ *
+ * ✅ Edit mobile UI  →  src/pages/User/Mobile/MobileHomePage.jsx
+ * ✅ Edit desktop UI →  src/pages/User/Desktop/DesktopHomePage.jsx
+ */
 const HomePage = () => {
+  const isMobile = useMobile();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { salons, featuredSalons, categories, loading } = useSelector((state) => state.user);
-  const [gender, setGender] = useState('women');
+  const { featuredSalons, categories } = useSelector((state) => state.user);
+  const [gender, setGender] = useState("women");
   const [lat, setLat] = useState(null);
   const [lng, setLng] = useState(null);
 
+  // ── Derived data (computed once, passed to both layouts) ──
   const filteredCategories = categories?.filter(
-    (cat) => cat.gender === gender || cat.gender === 'unisex'
+    (cat) => cat.gender === gender || cat.gender === "unisex"
   );
-
-  const filteredSalons = salons?.filter(
-    (salon) => salon.gender === gender || salon.gender === 'unisex'
-  );
-
   const filteredFeaturedSalons = featuredSalons?.filter(
-    (salon) => salon.gender === gender || salon.gender === 'unisex'
+    (salon) => salon.gender === gender || salon.gender === "unisex"
   );
+  const fallbackSalons =
+    filteredFeaturedSalons?.length > 0 ? filteredFeaturedSalons : featuredSalons || [];
 
-  // Use gender-filtered featured salons, or all featured salons if filter returns empty
-  const fallbackSalons = filteredFeaturedSalons?.length > 0 ? filteredFeaturedSalons : (featuredSalons || []);
-
+  // ── Load salons + categories on mount ──
   useEffect(() => {
-    const loadHomeData = async () => {
+    const load = async () => {
       try {
-        const salonsPromise = dispatch(fetchAllFeaturedSaloons()).unwrap();
-        const categoriesPromise = dispatch(fetchAllCategories()).unwrap();
-
         await toast.promise(
-          Promise.all([salonsPromise, categoriesPromise]),
+          Promise.all([
+            dispatch(fetchAllFeaturedSaloons()).unwrap(),
+            dispatch(fetchAllCategories()).unwrap(),
+          ]),
           {
             loading: "Loading salons & categories...",
             success: "Welcome 👋",
-            error: (err) =>
-              err?.message || "Failed to load homepage data",
+            error: (err) => err?.message || "Failed to load homepage data",
           }
         );
       } catch (error) {
         console.error("Homepage data load failed:", error);
       }
     };
-
-    loadHomeData();
+    load();
   }, [dispatch]);
 
-
-
+  // ── Geolocation ──
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
         setLat(latitude);
         setLng(longitude);
-
         localStorage.setItem("lat", latitude);
         localStorage.setItem("lng", longitude);
-
         toast.success("Location detected 📍");
       },
-      (error) => {
-        console.error("Geolocation error:", error);
-
-        if (error.code === error.PERMISSION_DENIED) {
-          toast.error("Location permission denied");
-        } else {
-          toast.error("Unable to detect location");
-        }
+      (err) => {
+        console.error("Geolocation error:", err);
+        toast.error(err.code === err.PERMISSION_DENIED ? "Location permission denied" : "Unable to detect location");
       },
       { enableHighAccuracy: true, timeout: 15000 }
     );
   }, []);
 
+  // ── Sync gender → Redux selectedCategory ──
+  useEffect(() => { dispatch(setSelectedCategory(gender)); }, [gender, dispatch]);
 
+  // ── Sync lat/lng → Redux ──
+  useEffect(() => { if (lat && lng) dispatch(setLocation({ lat, lng })); }, [lat, lng, dispatch]);
 
-  useEffect(() => {
-    dispatch(setSelectedCategory(gender));
-  }, [gender]);
+  // ── Shared props passed to both layouts ──
+  const sharedProps = { gender, setGender, filteredCategories, fallbackSalons, lat, lng };
 
-  useEffect(() => {
-    if (lat && lng) {
-      dispatch(setLocation({ lat, lng }));
-    }
-  }, [lat, lng]);
-
-  return (
-    <>
-      {/* ══════════════════════════════════════════════════════
-          DESKTOP LAYOUT — md and above, completely unchanged
-          ══════════════════════════════════════════════════════ */}
-      <div className="hidden md:block min-h-screen bg-linear-to-r from-[#FFF7F1] to-[#FFEDE2] pb-20">
-        <Hero />
-        <Services />
-        <ServicesBanner />
-        <GenderSwitch gender={gender} setGender={setGender} />
-        <Categories categories={filteredCategories} gender={gender} />
-        <HomeSaloons category={gender} lat={lat} lng={lng} fallbackSalons={fallbackSalons} />
-        {/* <TopRatedSaloons salons={salons} categories={categories}/> */}
-        <IndependentProfessionals />
-        <SalonHomeServices category={gender} lat={lat} lng={lng} />
-        <UnisexSalon lat={lat} lng={lng} />
-      </div>
-
-      {/* ═══════════════════════════════════════════════════
-          MOBILE LAYOUT — below md, exact mobile app clone
-          ═══════════════════════════════════════════════════ */}
-      <div className="block md:hidden min-h-screen pb-20 bg-white">
-
-        {/* 1. Teal header */}
-        <MobileHero />
-
-        <div className="flex flex-col">
-          {/* 2. Book at Home banner */}
-          <BookAtHomeBanner />
-
-          {/* 3. Gender toggle — sticky pill */}
-          <div className="w-full px-4 py-3 bg-white sticky top-0 z-40">
-            <div className="flex rounded-full p-1.5" style={{ backgroundColor: "#e0f5f3" }}>
-              {["women", "men"].map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setGender(g)}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-semibold text-sm transition-all duration-200"
-                  style={gender === g
-                    ? { backgroundColor: "#0d9488", color: "#ffffff" }
-                    : { backgroundColor: "transparent", color: "#374151" }
-                  }
-                >
-                  <img src={g === "women" ? womanImg : menImg} alt={g} className="w-5 h-5 object-contain rounded-full" />
-                  {g.charAt(0).toUpperCase() + g.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 4. Service categories (circular emoji row) */}
-          <ServiceCategories categories={filteredCategories} />
-
-          {/* 5. Nearby Salons — 2-column grid */}
-          <MobileHomeSaloons category={gender} lat={lat} lng={lng} fallbackSalons={fallbackSalons} />
-
-          {/* 6. Home Service — horizontal scroll pro cards */}
-          <MobileIndependentProfessionals />
-
-          {/* 7. Nearby Offers — horizontal scroll */}
-          <NearbyOffers />
-
-          {/* 8. Unisex salons — horizontal scroll */}
-          <MobileUnisexSalons lat={lat} lng={lng} />
-        </div>
-
-      </div>
-    </>
-  );
+  return isMobile
+    ? <MobileHomePage {...sharedProps} />
+    : <DesktopHomePage {...sharedProps} />;
 };
 
 export default HomePage;

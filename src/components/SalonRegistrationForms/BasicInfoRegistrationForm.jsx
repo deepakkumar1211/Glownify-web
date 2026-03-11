@@ -17,83 +17,86 @@ const BasicInfoRegistrationForm = ({ onNext, data, onChange, theme }) => {
     return (
       <div className="w-full">
         {/* Section header */}
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center mb-6">
           <h2 className="text-xl font-bold text-gray-800">Basic Salon Information</h2>
           <p className="text-gray-400 text-sm">Enter your salon details to get started</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Salon Name */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 ml-1 uppercase">Salon Name</label>
-            <input
-              name="salonname"
-              value={data.salonname}
-              onChange={(e) => onChange(e.target.name, e.target.value)}
-              type="text"
-              placeholder="Enter Salon Name"
-              className={inputStyle}
-            />
-          </div>
+        {/* Form card with grey bg + border */}
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Salon Name */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 ml-1 uppercase">Salon Name</label>
+              <input
+                name="salonname"
+                value={data.salonname}
+                onChange={(e) => onChange(e.target.name, e.target.value)}
+                type="text"
+                placeholder="Enter Salon Name"
+                className={inputStyle}
+              />
+            </div>
 
-          {/* Salon Type */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 ml-1 uppercase">Salon Type</label>
-            <select
-              name="salonType"
-              value={data.salonType}
-              onChange={(e) => onChange(e.target.name, e.target.value)}
-              className={inputStyle}
-            >
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Unisex">Unisex</option>
-            </select>
-          </div>
+            {/* Salon Type */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 ml-1 uppercase">Salon Type</label>
+              <select
+                name="salonType"
+                value={data.salonType}
+                onChange={(e) => onChange(e.target.name, e.target.value)}
+                className={inputStyle}
+              >
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Unisex">Unisex</option>
+              </select>
+            </div>
 
-          {/* Mobile Number */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 ml-1 uppercase">Mobile Number</label>
-            <input
-              name="mobileno"
-              value={data.mobileno}
-              onChange={(e) => onChange(e.target.name, e.target.value)}
-              type="text"
-              placeholder="Enter Mobile Number"
-              className={inputStyle}
-            />
-          </div>
+            {/* Mobile Number */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 ml-1 uppercase">Mobile Number</label>
+              <input
+                name="mobileno"
+                value={data.mobileno}
+                onChange={(e) => onChange(e.target.name, e.target.value)}
+                type="text"
+                placeholder="Enter Mobile Number"
+                className={inputStyle}
+              />
+            </div>
 
-          {/* WhatsApp Number */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-500 ml-1 uppercase">WhatsApp Number</label>
-            <input
-              name="watsupno"
-              value={data.watsupno}
-              onChange={(e) => onChange(e.target.name, e.target.value)}
-              type="text"
-              placeholder="Enter WhatsApp Number"
-              className={inputStyle}
-            />
-          </div>
+            {/* WhatsApp Number */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 ml-1 uppercase">WhatsApp Number</label>
+              <input
+                name="watsupno"
+                value={data.watsupno}
+                onChange={(e) => onChange(e.target.name, e.target.value)}
+                type="text"
+                placeholder="Enter WhatsApp Number"
+                className={inputStyle}
+              />
+            </div>
 
-          {/* Email */}
-          <div className="space-y-1 md:col-span-2">
-            <label className="text-xs font-bold text-gray-500 ml-1 uppercase">
-              Email <span className="text-gray-400 normal-case">(Optional)</span>
-            </label>
-            <input
-              name="email"
-              value={data.email}
-              onChange={(e) => onChange(e.target.name, e.target.value)}
-              type="email"
-              placeholder="Enter Email Address"
-              className={inputStyle}
-            />
+            {/* Email */}
+            <div className="space-y-1 md:col-span-2">
+              <label className="text-xs font-bold text-gray-500 ml-1 uppercase">
+                Email <span className="text-gray-400 normal-case">(Optional)</span>
+              </label>
+              <input
+                name="email"
+                value={data.email}
+                onChange={(e) => onChange(e.target.name, e.target.value)}
+                type="email"
+                placeholder="Enter Email Address"
+                className={inputStyle}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="mt-12 flex justify-end">
+        <div className="mt-8 flex justify-end">
           <button
             type="button"
             onClick={() => onNext(data)}
