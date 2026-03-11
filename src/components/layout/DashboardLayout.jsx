@@ -5,15 +5,19 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import { SIDEBAR_CONFIG } from "./sidebarConfig";
 import { logoutUser } from "../../redux/slice/authSlice";
+import useMobile from "../../hooks/useMobile";
 
 /**
  * DashboardLayout
  * ─────────────────────────────────────────────────────────────
  * Shared layout wrapper for all role-based dashboards.
- * Renders a collapsible sidebar (mobile) + sticky header + main content area.
  *
- * Used by: Super Admin, Sales Executive, Salon Owner, Salesman,
- *          Team Lead, Independent Pro, Specialist
+ * 📱 Mobile (< 768px): renders ONLY <Outlet /> — no sidebar, no header.
+ *    The child page (e.g. MobileSuperAdminDashboard) owns its own layout.
+ *
+ * 🖥  Desktop (≥ 768px): collapsible sidebar + sticky header + content area.
+ *
+ * Used by: Super Admin, Sales Executive, Salon Owner, Salesman, etc.
  */
 const DashboardLayout = () => {
   // ── State ─────────────────────────────────────────────────
@@ -24,6 +28,7 @@ const DashboardLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const isMobile = useMobile();
 
   // Sidebar config for the logged-in user's role (avatar, menu items, etc.)
   const roleConfig = SIDEBAR_CONFIG[user?.role];
@@ -45,7 +50,12 @@ const DashboardLayout = () => {
     navigate("/");
   };
 
-  // ── Render ────────────────────────────────────────────────
+  // ── Mobile: let the page render full-screen with its own layout ──
+  if (isMobile) {
+    return <Outlet />;
+  }
+
+  // ── Desktop: sidebar + header wrapper ──────────────────────────
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
 

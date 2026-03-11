@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import useMobile from "../../hooks/useMobile";
+import MobileSuperAdminDashboard from "./MobileSuperAdminDashboard";
 import {
   Users,
   Store,
@@ -51,7 +53,12 @@ const pieData = [
  * Shows summary stat cards, a sales executive table, subscription
  * growth chart, revenue distribution chart, and performance widgets.
  */
-const SuperAdminDashboard = () => {
+/**
+ * DesktopSuperAdminDashboard — Desktop-only analytics dashboard.
+ * ✅ Edit desktop UI → this component below.
+ * ✅ Edit mobile UI  → src/pages/SuperAdmin/MobileSuperAdminDashboard.jsx
+ */
+const DesktopSuperAdminDashboard = () => {
   const dispatch = useDispatch();
   const { dashboardData, loading, error } = useSelector(
     (state) => state.superadmin
@@ -248,6 +255,18 @@ const SuperAdminDashboard = () => {
       </div>
     </div>
   );
+};
+
+// ─── Dispatcher (default export) ─────────────────────────────────────────────
+
+/**
+ * SuperAdminDashboard — thin dispatcher
+ * On mobile (< 768px): renders MobileSuperAdminDashboard (RN-style layout)
+ * On desktop (≥ 768px): renders DesktopSuperAdminDashboard (table/chart analytics)
+ */
+const SuperAdminDashboard = () => {
+  const isMobile = useMobile();
+  return isMobile ? <MobileSuperAdminDashboard /> : <DesktopSuperAdminDashboard />;
 };
 
 // ─── Helper / Sub-Components ──────────────────────────────────────────────────

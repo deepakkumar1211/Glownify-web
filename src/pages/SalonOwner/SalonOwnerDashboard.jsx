@@ -1,6 +1,7 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { checkSubscription } from "../../utils/checkSubscription";
+import MobileSalonAdminDashboard from "./Mobile/MobileSalonAdminDashboard";
 import {
   Search,
   Bell,
@@ -75,11 +76,22 @@ const visitPieData = [
 const SalonOwnerDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (location.state?.skipSubscriptionCheck) return;
     checkSubscription(navigate);
   }, [navigate, location]);
+
+  if (isMobile) {
+    return <MobileSalonAdminDashboard />;
+  }
 
   return (
     <div className="p-6 w-full max-w-[1600px] mx-auto">

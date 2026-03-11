@@ -19,6 +19,7 @@ import {
   Clock,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import MobileManageSpecialistsScreen from "./Mobile/MobileManageSpecialistsScreen";
 
 const expertiseOptions = ["Hair", "Skin", "Makeup", "Massage", "Nails", "Other"];
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -41,6 +42,14 @@ const ManageSpecialistsPage = () => {
     certifications: "",
     availability: [],
   });
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllSpecialists());
@@ -177,6 +186,9 @@ const ManageSpecialistsPage = () => {
     }
   };
 
+  if (isMobile) {
+    return <MobileManageSpecialistsScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 md:p-8">

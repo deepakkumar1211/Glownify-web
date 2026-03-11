@@ -7,6 +7,7 @@ import {
   editAddOn,
   deleteAddOn,
 } from "../../redux/slice/saloonownerSlice";
+import MobileServiceAddOnsScreen from "./Mobile/MobileServiceAddOnsScreen";
 
 const emptyForm = {
   name: "",
@@ -25,6 +26,13 @@ const ManageAddOnPage = () => {
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllAddOns());
@@ -79,6 +87,10 @@ const ManageAddOnPage = () => {
       dispatch(deleteAddOn(id));
     }
   };
+
+  if (isMobile) {
+    return <MobileServiceAddOnsScreen />;
+  }
 
   return (
     <div className="w-full mx-auto px-4 md:px-8 lg:px-12 bg-gray-50 min-h-screen">

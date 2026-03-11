@@ -9,6 +9,7 @@ import {
 } from "../../redux/slice/saloonownerSlice";
 import { Clock, DollarSign, Pencil, Trash2, Plus, X, Tag, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import MobileManageServicesScreen from "./Mobile/MobileManageServicesScreen";
 const initialFormState = {
   name: "",
   category: "",
@@ -33,6 +34,13 @@ const ManageServicesPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingServiceId, setDeletingServiceId] = useState(null);
   const [form, setForm] = useState(initialFormState);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllServiceItems());
@@ -139,6 +147,10 @@ const ManageServicesPage = () => {
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
       </div>
     );
+  }
+
+  if (isMobile) {
+    return <MobileManageServicesScreen />;
   }
 
   return (
